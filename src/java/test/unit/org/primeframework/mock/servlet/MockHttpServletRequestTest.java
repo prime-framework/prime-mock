@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2010, JCatapult.org, All Rights Reserved
+ * Copyright (c) 2001-2010, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package org.jcatapult.mock.servlet;
+package org.primeframework.mock.servlet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,7 +39,7 @@ public class MockHttpServletRequestTest {
   @Test
   public void multipart() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("/foo", new MockServletContext());
-    request.addFile("file", new File("src/java/test/unit/org/jcatapult/mock/servlet/test-file.txt"), "text/plain");
+    request.addFile("file", new File("src/java/test/unit/org/primeframework/mock/servlet/test-file.txt"), "text/plain");
     request.setParameter("test", "test");
 
     FileItemFactory factory = new DiskFileItemFactory();
@@ -58,14 +58,14 @@ public class MockHttpServletRequestTest {
     File file = File.createTempFile("fileuploadtest", ".txt");
     items.get(1).write(file);
 
-    String original = FileUtils.readFileToString(new File("src/java/test/unit/org/jcatapult/mock/servlet/test-file.txt"));
+    String original = FileUtils.readFileToString(new File("src/java/test/unit/org/primeframework/mock/servlet/test-file.txt"));
     assertEquals(original, FileUtils.readFileToString(file));
   }
 
   @Test
   public void multipartJARFile() throws Exception {
-    test(new File("src/java/test/unit/org/jcatapult/mock/servlet/test.jar"), "application/java-archive");
-    test(new File("src/java/test/unit/org/jcatapult/mock/servlet/test.gif"), "image/gif");
+    test(new File("src/java/test/unit/org/primeframework/mock/servlet/test.jar"), "application/java-archive");
+    test(new File("src/java/test/unit/org/primeframework/mock/servlet/test.gif"), "image/gif");
   }
 
   private void test(File file, String contentType) throws Exception {

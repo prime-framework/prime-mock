@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007, JCatapult.org, All Rights Reserved
+ * Copyright (c) 2001-2007, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package org.jcatapult.mock.servlet;
+package org.primeframework.mock.servlet;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
@@ -1057,7 +1057,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
       throw new IllegalStateException("Content-Type set already. Can't add a file to the HTTP request");
     }
 
-    this.contentType = "multipart/form-data, boundary=jcatapultmultipartuploadLKAlskld09309djoid";
+    this.contentType = "multipart/form-data, boundary=primeframeworkmultipartuploadLKAlskld09309djoid";
     this.files.put(key, new FileInfo(file, key, contentType));
   }
 

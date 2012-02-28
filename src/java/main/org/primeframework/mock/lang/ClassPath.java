@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2011, JCatapult.org, All Rights Reserved
+ * Copyright (c) 2001-2011, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package org.jcatapult.mock.lang;
+package org.primeframework.mock.lang;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2010, JCatapult.org, All Rights Reserved
+ * Copyright (c) 2001-2010, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package org.jcatapult.mock.servlet;
+package org.primeframework.mock.servlet;
 
 import javax.servlet.ServletInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Brian Pontarelli
  */
 public class MultipartInputStream extends ServletInputStream {
-  public static final byte[] BOUNDARY = getBytes("--jcatapultmultipartuploadLKAlskld09309djoid");
+  public static final byte[] BOUNDARY = getBytes("--primeframeworkmultipartuploadLKAlskld09309djoid");
   public static final byte[] CLOSE_BOUNDARY = getBytes("--");
   public static final byte[] CRLF = getBytes("\r\n");
   public static final byte[] CONTENT_DISPOSITION = getBytes("Content-Disposition: form-data; name=");

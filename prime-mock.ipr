@@ -233,7 +233,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/jcatapult-mock.iml" filepath="$PROJECT_DIR$/jcatapult-mock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/prime-mock.iml" filepath="$PROJECT_DIR$/prime-mock.iml" />
     </modules>
   </component>
   <component name="ProjectResources">

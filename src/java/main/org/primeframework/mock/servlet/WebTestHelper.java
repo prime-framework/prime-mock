@@ -31,11 +31,23 @@ public class WebTestHelper {
   private static MockHttpSession session;
 
   /**
-   * Creates the request, response and context.
+   * Creates the context.
    */
-  public static void setUp() {
+  public static void setupContext() {
     WebTestHelper.context = makeContext();
+  }
+
+  /**
+   * Creates the session.
+   */
+  public static void setupSession() {
     WebTestHelper.session = makeSession(context);
+  }
+
+  /**
+   * Creates the request and response.
+   */
+  public static void setupRequestResponse() {
     WebTestHelper.request = makeRequest(session);
     WebTestHelper.response = makeResponse();
   }

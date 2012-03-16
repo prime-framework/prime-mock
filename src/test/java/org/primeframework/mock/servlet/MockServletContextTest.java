@@ -33,15 +33,15 @@ import static org.testng.Assert.*;
 public class MockServletContextTest {
   @Test
   public void resource() throws MalformedURLException {
-    MockServletContext context = new MockServletContext(new File("src/java/test/unit/org/primeframework/mock/servlet"));
+    MockServletContext context = new MockServletContext(new File("src/test/java/org/primeframework/mock/servlet"));
     URL url = context.getResource("/MockServletContextTest.java");
     assertNotNull(url);
-    assertEquals(new File("src/java/test/unit/org/primeframework/mock/servlet/MockServletContextTest.java").toURI().toURL(), url);
+    assertEquals(new File("src/test/java/org/primeframework/mock/servlet/MockServletContextTest.java").toURI().toURL(), url);
   }
 
   @Test
   public void resourcePath() throws MalformedURLException {
-    MockServletContext context = new MockServletContext(new File("src/java/test/unit/org/primeframework/mock/servlet"));
+    MockServletContext context = new MockServletContext(new File("src/test/java/org/primeframework/mock/servlet"));
     Set<String> urls = context.getResourcePaths("/WEB-INF/lib");
     assertNotNull(urls);
     assertTrue(urls.size() > 1);

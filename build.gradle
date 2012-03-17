@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group = "org.primeframework"
-version = "1.0"
+version = "1.0-SNAPSHOT"
 description = "Prime Mock Framework"
 sourceCompatibility = 1.6
 
@@ -30,6 +30,19 @@ dependencies {
     "org.easymock:easymock:3.1",
     "org.testng:testng:6.4"
   )
+}
+
+repositories {
+  ivy {
+    name = "ivyLocal"
+    url "${project.gradle.gradleUserHomeDir}/integration-cache"
+  }
+}
+
+uploadArchives {
+  repositories {
+    add project.repositories.ivyLocal
+  }
 }
 
 // gradle doesn't provide the capability to define 'compile only'

@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.primeframework.mock.lang.ClassPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a mock servlet context.
@@ -42,13 +44,14 @@ import org.primeframework.mock.lang.ClassPath;
  */
 @SuppressWarnings("unchecked")
 public class MockServletContext implements ServletContext {
-  private static final String WEB_INF_LIB = "/WEB-INF/lib";
-  protected final Map<String, Object> attributes = new HashMap<String, Object>();
-  protected File webDir;
-  protected ClassPath classPath;
+  private final static Logger logger = LoggerFactory.getLogger(MockServletContext.class);
+  public static final String WEB_INF_LIB = "/WEB-INF/lib";
+  public final Map<String, Object> attributes = new HashMap<String, Object>();
+  public File webDir;
+  public ClassPath classPath;
 
   public MockServletContext() {
-    System.out.println("Built MockServletContext without webDir");
+    logger.debug("Built MockServletContext without webDir");
     try {
       classPath = ClassPath.getCurrentClassPath();
     } catch (IOException e) {
@@ -58,7 +61,7 @@ public class MockServletContext implements ServletContext {
 
   public MockServletContext(File webDir) {
     this();
-    System.out.println("Built MockServletContext with webDir " + webDir.getAbsolutePath());
+    logger.debug("Built MockServletContext with webDir " + webDir.getAbsolutePath());
     this.webDir = webDir;
   }
 

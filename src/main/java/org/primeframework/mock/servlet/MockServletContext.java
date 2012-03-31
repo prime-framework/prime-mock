@@ -48,6 +48,7 @@ public class MockServletContext implements ServletContext {
   protected ClassPath classPath;
 
   public MockServletContext() {
+    System.out.println("Built MockServletContext without webDir");
     try {
       classPath = ClassPath.getCurrentClassPath();
     } catch (IOException e) {
@@ -57,6 +58,7 @@ public class MockServletContext implements ServletContext {
 
   public MockServletContext(File webDir) {
     this();
+    System.out.println("Built MockServletContext with webDir " + webDir.getAbsolutePath());
     this.webDir = webDir;
   }
 

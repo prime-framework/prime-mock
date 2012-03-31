@@ -46,3 +46,5 @@ sourceCompatibility = 1.6
 test {
   useTestNG()
 }
+compileJava.options.debugOptions.debugLevel = "source,lines,vars"
+compileTestJava.options.debugOptions.debugLevel = "source,lines,vars"

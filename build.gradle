@@ -6,7 +6,7 @@ description = "Prime Mock Framework"
 // Plugins
 apply plugin: "java"
 apply plugin: "idea"
-apply plugin: "integration"
+apply plugin: "init"
 apply plugin: "release"
 
 // Build script config
@@ -22,19 +22,14 @@ buildscript {
     }
   }
   dependencies {
-    classpath "org.primeframework.gradle:gradle-integration-plugin:0.1",
-      "org.primeframework.gradle:gradle-release-plugin:0.1"
+    classpath "org.primeframework.gradle:gradle-init-plugin:0.2-SNAPSHOT",
+      "org.primeframework.gradle:gradle-release-plugin:0.5"
   }
 }
 
 // Dependencies
 repositories {
   mavenCentral()
-  ivy {
-    name "releaseRepository"
-    ivyPattern "file:///$releasePlugin.inversoftIvyGitRepo/repository/public/[organisation]/[module]/[revision]/ivy.xml"
-    artifactPattern "file:///$releasePlugin.inversoftIvyGitRepo/repository/public/[organisation]/[module]/[revision]/[type]s/[artifact]-[revision].[ext]"
-  }
 }
 
 dependencies {
@@ -52,23 +47,14 @@ dependencies {
   )
 }
 
-// IDEA config
-idea {
-  pathVariables USER_HOME: file(System.getProperty('user.home'))
-  module {
-    scopes.PROVIDED.plus += configurations.compileOnly
-    iml {
-      whenMerged { module ->
-        module.dependencies*.exported = false
-      }
-    }
-  }
-}
-
 // Java config
 sourceCompatibility = 1.6
+
+// use testng
 test {
   useTestNG()
 }
-compileJava.options.debugOptions.debugLevel = "source,lines,vars"
-compileTestJava.options.debugOptions.debugLevel = "source,lines,vars"
+
+// for compliation so that the debug level is set
+project.compileJava.options.debugOptions.debugLevel = "source,lines,vars"
+project.compileTestJava.options.debugOptions.debugLevel = "source,lines,vars"

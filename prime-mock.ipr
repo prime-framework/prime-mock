@@ -93,13 +93,6 @@
     <entry_points version="2.0" />
   </component>
   <component name="GradleSettings">
-    <option name="expandStates">
-      <map>
-        <entry key="dependencies/prime-mock/prime-mock" value="true" />
-        <entry key="prime-mock" value="true" />
-        <entry key="prime-mock/prime-mock" value="true" />
-      </map>
-    </option>
     <option name="gradleHome" value="$GRADLE_HOME$" />
     <option name="linkedProjectPath" value="$PROJECT_DIR$/build.gradle" />
   </component>

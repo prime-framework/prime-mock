@@ -44,11 +44,17 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("unchecked")
 public class MockServletContext implements ServletContext {
-  private final static Logger logger = LoggerFactory.getLogger(MockServletContext.class);
   public static final String WEB_INF_LIB = "/WEB-INF/lib";
+
+  private final static Logger logger = LoggerFactory.getLogger(MockServletContext.class);
+
   public final Map<String, Object> attributes = new HashMap<String, Object>();
-  public File webDir;
+
   public ClassPath classPath;
+
+  public String contextPath;
+
+  public File webDir;
 
   public MockServletContext() {
     logger.debug("Built MockServletContext without webDir");
@@ -73,15 +79,20 @@ public class MockServletContext implements ServletContext {
     return new Vector(attributes.keySet()).elements();
   }
 
-  public void setAttribute(String name, Object value) {
-    attributes.put(name, value);
-  }
-
-  public void removeAttribute(String name) {
-    attributes.remove(name);
-  }
-
   public ServletContext getContext(String s) {
+    return null;
+  }
+
+  @Override
+  public String getContextPath() {
+    return contextPath;
+  }
+
+  public String getInitParameter(String s) {
+    return null;
+  }
+
+  public Enumeration getInitParameterNames() {
     return null;
   }
 
@@ -89,48 +100,33 @@ public class MockServletContext implements ServletContext {
     return 0;
   }
 
-  public int getMinorVersion() {
-    return 0;
-  }
-
   public String getMimeType(String s) {
     return null;
   }
 
-  public Set getResourcePaths(String path) {
-    if (path.equals(WEB_INF_LIB)) {
-      Set<String> finalPaths = new HashSet<String>();
-      Set<String> urls = new HashSet(classPath.getNames());
-      for (String url : urls) {
-        int index = url.lastIndexOf("/");
-        if (index >= 0 && index != url.length() - 1) {
-          finalPaths.add(WEB_INF_LIB + "/" + url.substring(index + 1));
-        } else if (index != url.length() - 1) { // Only if it is a file not a directory
-          finalPaths.add(WEB_INF_LIB + "/" + url);
-        }
-      }
+  public int getMinorVersion() {
+    return 0;
+  }
 
-      return finalPaths;
-    } else {
-      if (path.startsWith("/")) {
-        path = path.substring(1);
-      }
+  public RequestDispatcher getNamedDispatcher(String s) {
+    return null;
+  }
 
-      Set<String> urls = new HashSet<String>();
-      File f = new File(webDir, path);
-      if (f.isDirectory()) {
-        File[] files = f.listFiles();
-        for (File file : files) {
-          try {
-            urls.add(file.toURI().toURL().toExternalForm());
-          } catch (MalformedURLException e) {
-            // Ignore
-          }
-        }
-      }
-
-      return urls;
+  public String getRealPath(String path) {
+    if (path.startsWith("/")) {
+      path = path.substring(1);
     }
+
+    File f = new File(webDir, path);
+    if (f.isFile()) {
+      return f.getAbsolutePath();
+    }
+
+    return null;
+  }
+
+  public RequestDispatcher getRequestDispatcher(String s) {
+    return null;
   }
 
   public URL getResource(String path) throws MalformedURLException {
@@ -170,11 +166,43 @@ public class MockServletContext implements ServletContext {
     return null;
   }
 
-  public RequestDispatcher getRequestDispatcher(String s) {
-    return null;
+  public Set getResourcePaths(String path) {
+    if (path.equals(WEB_INF_LIB)) {
+      Set<String> finalPaths = new HashSet<String>();
+      Set<String> urls = new HashSet(classPath.getNames());
+      for (String url : urls) {
+        int index = url.lastIndexOf("/");
+        if (index >= 0 && index != url.length() - 1) {
+          finalPaths.add(WEB_INF_LIB + "/" + url.substring(index + 1));
+        } else if (index != url.length() - 1) { // Only if it is a file not a directory
+          finalPaths.add(WEB_INF_LIB + "/" + url);
+        }
+      }
+
+      return finalPaths;
+    } else {
+      if (path.startsWith("/")) {
+        path = path.substring(1);
+      }
+
+      Set<String> urls = new HashSet<String>();
+      File f = new File(webDir, path);
+      if (f.isDirectory()) {
+        File[] files = f.listFiles();
+        for (File file : files) {
+          try {
+            urls.add(file.toURI().toURL().toExternalForm());
+          } catch (MalformedURLException e) {
+            // Ignore
+          }
+        }
+      }
+
+      return urls;
+    }
   }
 
-  public RequestDispatcher getNamedDispatcher(String s) {
+  public String getServerInfo() {
     return null;
   }
 
@@ -182,11 +210,15 @@ public class MockServletContext implements ServletContext {
     return null;
   }
 
-  public Enumeration getServlets() {
+  public String getServletContextName() {
     return null;
   }
 
   public Enumeration getServletNames() {
+    return null;
+  }
+
+  public Enumeration getServlets() {
     return null;
   }
 
@@ -199,32 +231,11 @@ public class MockServletContext implements ServletContext {
   public void log(String s, Throwable throwable) {
   }
 
-  public String getRealPath(String path) {
-    if (path.startsWith("/")) {
-      path = path.substring(1);
-    }
-
-    File f = new File(webDir, path);
-    if (f.isFile()) {
-      return f.getAbsolutePath();
-    }
-
-    return null;
+  public void removeAttribute(String name) {
+    attributes.remove(name);
   }
 
-  public String getServerInfo() {
-    return null;
-  }
-
-  public String getInitParameter(String s) {
-    return null;
-  }
-
-  public Enumeration getInitParameterNames() {
-    return null;
-  }
-
-  public String getServletContextName() {
-    return null;
+  public void setAttribute(String name, Object value) {
+    attributes.put(name, value);
   }
 }

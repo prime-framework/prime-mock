@@ -56,7 +56,11 @@
       <entry name="?*.ftl" />
       <entry name="?*.xml" />
     </wildcardResourcePatterns>
-    <annotationProcessing enabled="false" useClasspath="true" />
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+    </annotationProcessing>
   </component>
   <component name="CopyrightManager" default="Inversoft Apache">
     <copyright>
@@ -73,7 +77,6 @@
       <option name="myName" value="Inversoft Apache" />
       <option name="myLocal" value="true" />
     </copyright>
-    <module2copyright />
     <LanguageOptions name="__TEMPLATE__">
       <option name="addBlankAfter" value="false" />
     </LanguageOptions>
@@ -84,10 +87,6 @@
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
-  </component>
-  <component name="GradleSettings">
-    <option name="gradleHome" value="$GRADLE_HOME$" />
-    <option name="linkedProjectPath" value="$PROJECT_DIR$/build.gradle" />
   </component>
   <component name="IdProvider" IDEtalkID="48656785D03D58D25DFE1FF5509FE923" />
   <component name="JavadocGenerationManager">
@@ -231,11 +230,453 @@
   <component name="ProjectCodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
+        <option name="OTHER_INDENT_OPTIONS">
+          <value>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+            <option name="USE_TAB_CHARACTER" value="false" />
+            <option name="SMART_TABS" value="false" />
+            <option name="LABEL_INDENT_SIZE" value="0" />
+            <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+            <option name="USE_RELATIVE_INDENTS" value="false" />
+          </value>
+        </option>
+        <option name="LINE_SEPARATOR" value="&#10;" />
+        <option name="GENERATE_FINAL_LOCALS" value="true" />
+        <option name="LAYOUT_STATIC_IMPORTS_SEPARATELY" value="false" />
+        <option name="USE_FQ_CLASS_NAMES_IN_JAVADOC" value="false" />
+        <option name="INSERT_INNER_CLASS_IMPORTS" value="true" />
+        <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
+        <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="999" />
+        <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
+          <value />
+        </option>
+        <option name="IMPORT_LAYOUT_TABLE">
+          <value>
+            <package name="javax" withSubpackages="true" static="false" />
+            <package name="java" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="org" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="net" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="" withSubpackages="true" static="false" />
+          </value>
+        </option>
+        <option name="JD_ALIGN_EXCEPTION_COMMENTS" value="false" />
+        <option name="HTML_KEEP_WHITESPACES" value="true" />
+        <option name="HTML_ATTRIBUTE_WRAP" value="0" />
+        <option name="HTML_TEXT_WRAP" value="0" />
+        <option name="WRAP_COMMENTS" value="true" />
+        <option name="FIELD_ANNOTATION_WRAP" value="0" />
+        <JSCodeStyleSettings>
+          <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
+        </JSCodeStyleSettings>
         <XML>
+          <option name="XML_ATTRIBUTE_WRAP" value="0" />
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
+        <codeStyleSettings language="CSS">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="CoffeeScript">
+          <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="Groovy">
+          <option name="FIELD_ANNOTATION_WRAP" value="0" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+            <option name="LABEL_INDENT_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="HTML">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JAVA">
+          <option name="BLANK_LINES_AROUND_FIELD" value="1" />
+          <option name="ALIGN_MULTILINE_CHAINED_METHODS" value="true" />
+          <option name="WRAP_COMMENTS" value="true" />
+          <option name="FIELD_ANNOTATION_WRAP" value="0" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+          <arrangement>
+            <rules>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PUBLIC />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PROTECTED />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PACKAGE_PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PUBLIC />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PROTECTED />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PACKAGE_PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PUBLIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PROTECTED />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PACKAGE_PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <FINAL />
+                    <PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PUBLIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PROTECTED />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PACKAGE_PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <FIELD />
+                    <PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CONSTRUCTOR />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CONSTRUCTOR />
+                    <PUBLIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CONSTRUCTOR />
+                    <PROTECTED />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CONSTRUCTOR />
+                    <PACKAGE_PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CONSTRUCTOR />
+                    <PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PUBLIC />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PROTECTED />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PACKAGE_PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PRIVATE />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PUBLIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PROTECTED />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PACKAGE_PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <METHOD />
+                    <PRIVATE />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <ENUM />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <INTERFACE />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <AND>
+                    <CLASS />
+                    <STATIC />
+                  </AND>
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+              <rule>
+                <match>
+                  <CLASS />
+                </match>
+                <order>BY_NAME</order>
+              </rule>
+            </rules>
+          </arrangement>
+        </codeStyleSettings>
+        <codeStyleSettings language="JSPX">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JavaScript">
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="LESS">
+          <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="SASS">
+          <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="SCSS">
+          <indentOptions>
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="XML">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="yaml">
+          <indentOptions>
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
       </value>
     </option>
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
   </component>
   <component name="ProjectModuleManager">
     <modules>

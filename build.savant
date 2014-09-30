@@ -20,6 +20,10 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.5.0", licen
     standard()
   }
 
+  publishWorkflow {
+    subversion(repository: "http://svn.inversoft.org/savant")
+  }
+
   dependencies {
     group(name: "provided") {
       dependency(id: "javax.servlet:servlet-api:3.1.0", skipCompatibilityCheck: true)

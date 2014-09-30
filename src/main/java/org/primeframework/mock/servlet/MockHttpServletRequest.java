@@ -15,11 +15,20 @@
  */
 package org.primeframework.mock.servlet;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -36,7 +46,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 /**
  * This class is a mock servlet request.
@@ -46,39 +56,62 @@ import static java.util.Arrays.*;
 @SuppressWarnings("unchecked")
 public class MockHttpServletRequest implements HttpServletRequest {
   protected final Map<String, Object> attributes = new HashMap<String, Object>();
-  protected final Map<String, List<String>> headers = new HashMap<String, List<String>>();
-  protected final Map<String, List<String>> parameters = new HashMap<String, List<String>>();
-  protected final Map<String, FileInfo> files = new HashMap<String, FileInfo>();
+
   protected final MockServletContext context;
 
-  protected MockHttpSession session;
+  protected final Map<String, FileInfo> files = new HashMap<String, FileInfo>();
+
+  protected final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+
+  protected final Map<String, List<String>> parameters = new HashMap<String, List<String>>();
+
   protected String contentType = null;
 
-  protected String uri;
+  protected String contextPath = "";
 
-  protected Vector<Locale> locales = new Vector<Locale>(asList(Locale.getDefault()));
-  protected Method method;
-  protected String encoding;
-  protected String remoteAddr = "127.0.0.1";
-  protected String remoteHost;
-  protected int remotePort = 10000;
-  protected String scheme = "HTTP";
-  protected String serverName = "localhost";
-  protected String localName = "localhost";
-
-  protected int serverPort = 10000;
-  protected ServletInputStream inputStream;
-  protected BufferedReader reader;
-  protected boolean inputStreamRetrieved;
-  protected boolean readerRetrieved;
+  protected List<Cookie> cookies = new ArrayList<Cookie>();
 
   protected MockRequestDispatcher dispatcher;
-  protected String contextPath = "";
-  protected List<Cookie> cookies = new ArrayList<Cookie>();
+
+  protected String encoding;
+
+  protected ServletInputStream inputStream;
+
+  protected boolean inputStreamRetrieved;
+
+  protected String localName = "localhost";
+
+  protected Vector<Locale> locales = new Vector<Locale>(asList(Locale.getDefault()));
+
+  protected Method method;
+
   protected String pathInfo = "";
+
   protected String pathTranslated;
+
+  protected BufferedReader reader;
+
+  protected boolean readerRetrieved;
+
+  protected String remoteAddr = "127.0.0.1";
+
+  protected String remoteHost;
+
+  protected int remotePort = 10000;
+
   protected String remoteUser;
+
+  protected String scheme = "HTTP";
+
+  protected String serverName = "localhost";
+
+  protected int serverPort = 10000;
+
   protected String servletPath = "";
+
+  protected MockHttpSession session;
+
+  protected String uri;
 
   public MockHttpServletRequest(String uri, MockServletContext context) {
     this.uri = uri;
@@ -155,6 +188,109 @@ public class MockHttpServletRequest implements HttpServletRequest {
   //-------------------------------------------------------------------------
 
   /**
+   * Adds a cookie.
+   *
+   * @param cookie The cookie.
+   */
+  public void addCookie(Cookie cookie) {
+    this.cookies.add(cookie);
+  }
+
+  /**
+   * Adds a file to the HTTP request body. This must be called if the content type is not set and the InputStream hasn't
+   * been set or retrieved.
+   *
+   * @param key         The name of the form field.
+   * @param file        The file to add.
+   * @param contentType The content type of the file.
+   */
+  public void addFile(String key, File file, String contentType) {
+    if (contentType == null || file == null) {
+      throw new IllegalArgumentException("The FileInfo must have a file and a contentType");
+    }
+    if (inputStreamRetrieved) {
+      throw new IllegalStateException("InputStream retrieved already. Can't add a file to the HTTP request");
+    }
+    if (readerRetrieved) {
+      throw new IllegalStateException("Reader retrieved already. Can't add a file to the HTTP request");
+    }
+    if (this.contentType != null) {
+      throw new IllegalStateException("Content-Type set already. Can't add a file to the HTTP request");
+    }
+
+    this.contentType = "multipart/form-data, boundary=primeframeworkmultipartuploadLKAlskld09309djoid";
+    this.files.put(key, new FileInfo(file, key, contentType));
+  }
+
+  /**
+   * Allows a header to be added.
+   *
+   * @param name  The header name.
+   * @param value The header value.
+   */
+  public void addHeader(String name, String value) {
+    List<String> values = headers.get(name);
+    if (values == null) {
+      values = new ArrayList<String>();
+      headers.put(name, values);
+    }
+
+    values.add(value);
+  }
+
+  /**
+   * Adds a request locale.
+   *
+   * @param locale The locale.
+   */
+  public void addLocale(Locale locale) {
+    this.locales.add(locale);
+  }
+
+  @Override
+  public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String changeSessionId() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Clears all the attributes
+   */
+  public void clearAttributes() {
+    attributes.clear();
+  }
+
+  /**
+   * Clears all the cookies.
+   */
+  public void clearCookies() {
+    this.cookies.clear();
+  }
+
+  /**
+   * Clears all the request locales.
+   */
+  public void clearLocales() {
+    locales.clear();
+  }
+
+  /**
+   * Clears all the parameters
+   */
+  public void clearParameters() {
+    parameters.clear();
+  }
+
+  @Override
+  public AsyncContext getAsyncContext() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    */
   public Object getAttribute(String name) {
     return attributes.get(name);
@@ -165,6 +301,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public Enumeration getAttributeNames() {
     return new Vector(attributes.keySet()).elements();
+  }
+
+  /**
+   * Local clients don't authenticate
+   */
+  public String getAuthType() {
+    return null;
   }
 
   /**
@@ -183,7 +326,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /**
    * @return If the input stream or the reader are setup, this will return the length of those using the available
-   *         method.
+   * method.
    */
   public int getContentLength() {
     if (inputStream != null) {
@@ -197,11 +340,106 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return -1;
   }
 
+  @Override
+  public long getContentLengthLong() {
+    return 0;
+  }
+
   /**
    * @return The content type.
    */
   public String getContentType() {
     return contentType;
+  }
+
+  /**
+   * Sets the content type of the request.
+   *
+   * @param contentType The new content type.
+   */
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
+  /**
+   * @return The context path, which defaults to empty String.
+   */
+  public String getContextPath() {
+    return contextPath;
+  }
+
+  /**
+   * Sets the context path.
+   *
+   * @param contextPath The context path.
+   */
+  public void setContextPath(String contextPath) {
+    this.contextPath = contextPath;
+  }
+
+  /**
+   * @return Any cookies setup.
+   */
+  public Cookie[] getCookies() {
+    return cookies.toArray(new Cookie[cookies.size()]);
+  }
+
+  /**
+   * @return The list of cookies.
+   */
+  public List<Cookie> getCookiesList() {
+    return cookies;
+  }
+
+  /**
+   * @param name The name of the header.
+   * @return The date header (if it exists), or -1.
+   */
+  public long getDateHeader(String name) {
+    List<String> values = headers.get(name);
+    if (values == null || values.size() == 0) {
+      return -1;
+    }
+
+    return Long.parseLong(values.get(0));
+  }
+
+  @Override
+  public DispatcherType getDispatcherType() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param name The name of the header.
+   * @return The header or null.
+   */
+  public String getHeader(String name) {
+    List<String> values = headers.get(name);
+    if (values == null || values.size() == 0) {
+      return null;
+    }
+
+    return values.get(0);
+  }
+
+  /**
+   * @return The header names.
+   */
+  public Enumeration getHeaderNames() {
+    return new Vector(headers.keySet()).elements();
+  }
+
+  /**
+   * @param name The name of the headers.
+   * @return The headers, never null.
+   */
+  public Enumeration getHeaders(String name) {
+    List<String> values = headers.get(name);
+    if (values == null || values.size() == 0) {
+      return new Vector().elements();
+    }
+
+    return new Vector(values).elements();
   }
 
   /**
@@ -223,27 +461,30 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return inputStream;
   }
 
-  public String getLocalAddr() {
-    return null;
+  /**
+   * Sets the input stream.
+   *
+   * @param inputStream The input stream.
+   */
+  public void setInputStream(ServletInputStream inputStream) {
+    this.inputStream = inputStream;
   }
 
   /**
-   * @return The system default locale if nothing was added or setup in the constructor or using the setter methods.
-   *         If there are multiple locales setup, this returns the first one.
+   * @param name The name of the header.
+   * @return The header or -1.
    */
-  public Locale getLocale() {
-    if (locales.isEmpty()) {
-      return Locale.getDefault();
+  public int getIntHeader(String name) {
+    List<String> values = headers.get(name);
+    if (values == null || values.size() == 0) {
+      return -1;
     }
 
-    return locales.get(0);
+    return Integer.parseInt(values.get(0));
   }
 
-  /**
-   * @return The request locales.
-   */
-  public Enumeration getLocales() {
-    return locales.elements();
+  public String getLocalAddr() {
+    return null;
   }
 
   /**
@@ -253,8 +494,67 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return localName;
   }
 
+  /**
+   * Sets the local name.
+   *
+   * @param localName The local name.
+   */
+  public void setLocalName(String localName) {
+    this.localName = localName;
+  }
+
   public int getLocalPort() {
     return 0;
+  }
+
+  /**
+   * @return The system default locale if nothing was added or setup in the constructor or using the setter methods. If
+   * there are multiple locales setup, this returns the first one.
+   */
+  public Locale getLocale() {
+    if (locales.isEmpty()) {
+      return Locale.getDefault();
+    }
+
+    return locales.get(0);
+  }
+
+
+  //-------------------------------------------------------------------------
+  //  javax.servlet.http.HttpServletRequest methods
+  //-------------------------------------------------------------------------
+
+  /**
+   * @return The request locales.
+   */
+  public Enumeration getLocales() {
+    return locales.elements();
+  }
+
+  /**
+   * @return The request locales vector (changes effect the internal Vector).
+   */
+  public Vector<Locale> getLocalesVector() {
+    return locales;
+  }
+
+  /**
+   * @return GET or POST, depending on the constructor or post flag setup.
+   */
+  public String getMethod() {
+    return method.toString();
+  }
+
+  /**
+   * Sets the method of the request.
+   *
+   * @param method The method.
+   */
+  public void setMethod(Method method) {
+    this.method = method;
+    if (method == Method.POST && contentType == null) {
+      contentType = "application/x-www-form-urlencoded";
+    }
   }
 
   /**
@@ -308,10 +608,82 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
+   * @return The parameter map.
+   */
+  public Map<String, List<String>> getParameters() {
+    return parameters;
+  }
+
+  @Override
+  public Part getPart(String name) throws IOException, ServletException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection<Part> getParts() throws IOException, ServletException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return The path info.
+   */
+  public String getPathInfo() {
+    return pathInfo;
+  }
+
+  /**
+   * Sets the path info.
+   *
+   * @param pathInfo The path info.
+   */
+  public void setPathInfo(String pathInfo) {
+    this.pathInfo = pathInfo;
+  }
+
+  /**
+   * @return The path translated.
+   */
+  public String getPathTranslated() {
+    return pathTranslated;
+  }
+
+  /**
+   * Sets the path translated.
+   *
+   * @param pathTranslated The path translated.
+   */
+  public void setPathTranslated(String pathTranslated) {
+    this.pathTranslated = pathTranslated;
+  }
+
+  /**
    * @return Always HTTP/1.0
    */
   public String getProtocol() {
     return "HTTP/1.0";
+  }
+
+  /**
+   * @return The query string.
+   */
+  public String getQueryString() {
+    StringBuilder build = new StringBuilder();
+    for (String key : parameters.keySet()) {
+      List<String> list = parameters.get(key);
+      for (String value : list) {
+        if (build.length() > 0) {
+          build.append("&");
+        }
+
+        try {
+          build.append(URLEncoder.encode(key, "UTF-8")).append("=").append(URLEncoder.encode(value, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
+    return build.toString();
   }
 
   /**
@@ -340,6 +712,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
+   * Sets the reader.
+   *
+   * @param reader The reader.
+   */
+  public void setReader(BufferedReader reader) {
+    this.reader = reader;
+  }
+
+  /**
    * @deprecated
    */
   public String getRealPath(String url) {
@@ -354,6 +735,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
+   * Sets the remote address.
+   *
+   * @param remoteAddr The remote address.
+   */
+  public void setRemoteAddr(String remoteAddr) {
+    this.remoteAddr = remoteAddr;
+  }
+
+  /**
    * @return The remote host.
    */
   public String getRemoteHost() {
@@ -361,10 +751,44 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
+   * Sets the remote host.
+   *
+   * @param remoteHost The remote host.
+   */
+  public void setRemoteHost(String remoteHost) {
+    this.remoteHost = remoteHost;
+  }
+
+  /**
    * @return The remote port.
    */
   public int getRemotePort() {
     return remotePort;
+  }
+
+  /**
+   * Sets the remote port.
+   *
+   * @param remotePort The remote port.
+   */
+  public void setRemotePort(int remotePort) {
+    this.remotePort = remotePort;
+  }
+
+  /**
+   * @return The remote user.
+   */
+  public String getRemoteUser() {
+    return remoteUser;
+  }
+
+  /**
+   * Sets the remote user.
+   *
+   * @param remoteUser The remote user.
+   */
+  public void setRemoteUser(String remoteUser) {
+    this.remoteUser = remoteUser;
   }
 
   /**
@@ -406,194 +830,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
-   * @return The scheme, which defaults to HTTP.
+   * @return The RequestDispatcher if one was created from this Request
    */
-  public String getScheme() {
-    return scheme;
-  }
-
-  /**
-   * @return The server name, which defaults to localhost.
-   */
-  public String getServerName() {
-    return serverName;
-  }
-
-  /**
-   * @return The server port, which defaults to 80.
-   */
-  public int getServerPort() {
-    return serverPort;
-  }
-
-  /**
-   * @return True if the scheme is HTTPS, false otherwise.
-   */
-  public boolean isSecure() {
-    return scheme.equals("HTTPS");
-  }
-
-  /**
-   * Removes the attribute with the name given.
-   *
-   * @param name The name of the attribute.
-   */
-  public void removeAttribute(String name) {
-    attributes.remove(name);
-  }
-
-  /**
-   * Sets the attribute given.
-   *
-   * @param name  The name of the attribute.
-   * @param value The attribute value.
-   */
-  public void setAttribute(String name, Object value) {
-    attributes.put(name, value);
-  }
-
-
-  //-------------------------------------------------------------------------
-  //  javax.servlet.http.HttpServletRequest methods
-  //-------------------------------------------------------------------------
-
-
-  /**
-   * Local clients don't authenticate
-   */
-  public String getAuthType() {
-    return null;
-  }
-
-  /**
-   * @return The context path, which defaults to empty String.
-   */
-  public String getContextPath() {
-    return contextPath;
-  }
-
-  /**
-   * @return Any cookies setup.
-   */
-  public Cookie[] getCookies() {
-    return cookies.toArray(new Cookie[cookies.size()]);
-  }
-
-  /**
-   * @param name The name of the header.
-   * @return The date header (if it exists), or -1.
-   */
-  public long getDateHeader(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
-      return -1;
-    }
-
-    return Long.parseLong(values.get(0));
-  }
-
-  /**
-   * @param name The name of the header.
-   * @return The header or null.
-   */
-  public String getHeader(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
-      return null;
-    }
-
-    return values.get(0);
-  }
-
-  /**
-   * @return The header names.
-   */
-  public Enumeration getHeaderNames() {
-    return new Vector(headers.keySet()).elements();
-  }
-
-  /**
-   * @param name The name of the headers.
-   * @return The headers, never null.
-   */
-  public Enumeration getHeaders(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
-      return new Vector().elements();
-    }
-
-    return new Vector(values).elements();
-  }
-
-  /**
-   * @param name The name of the header.
-   * @return The header or -1.
-   */
-  public int getIntHeader(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
-      return -1;
-    }
-
-    return Integer.parseInt(values.get(0));
-  }
-
-  /**
-   * @return GET or POST, depending on the constructor or post flag setup.
-   */
-  public String getMethod() {
-    return method.toString();
-  }
-
-  /**
-   * @return The path info.
-   */
-  public String getPathInfo() {
-    return pathInfo;
-  }
-
-  /**
-   * @return The path translated.
-   */
-  public String getPathTranslated() {
-    return pathTranslated;
-  }
-
-  /**
-   * @return The query string.
-   */
-  public String getQueryString() {
-    StringBuilder build = new StringBuilder();
-    for (String key : parameters.keySet()) {
-      List<String> list = parameters.get(key);
-      for (String value : list) {
-        if (build.length() > 0) {
-          build.append("&");
-        }
-
-        try {
-          build.append(URLEncoder.encode(key, "UTF-8")).append("=").append(URLEncoder.encode(value, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    }
-
-    return build.toString();
-  }
-
-  /**
-   * @return The remote user.
-   */
-  public String getRemoteUser() {
-    return remoteUser;
-  }
-
-  /**
-   * @return Nothing, not implemented
-   */
-  public String getRequestedSessionId() {
-    throw new UnsupportedOperationException();
+  public MockRequestDispatcher getRequestDispatcher() {
+    return dispatcher;
   }
 
   /**
@@ -609,11 +849,89 @@ public class MockHttpServletRequest implements HttpServletRequest {
     throw new UnsupportedOperationException();
   }
 
+  //-------------------------------------------------------------------------
+  //                            Helper methods
+  //-------------------------------------------------------------------------
+
+  /**
+   * @return Nothing, not implemented
+   */
+  public String getRequestedSessionId() {
+    throw new UnsupportedOperationException();
+  }
+
+
+  //-------------------------------------------------------------------------
+  //                          Modification Methods
+  //-------------------------------------------------------------------------
+
+  /**
+   * @return The scheme, which defaults to HTTP.
+   */
+  public String getScheme() {
+    return scheme;
+  }
+
+  /**
+   * Sets the scheme, which defaults to HTTP.
+   *
+   * @param scheme The scheme.
+   */
+  public void setScheme(String scheme) {
+    this.scheme = scheme;
+  }
+
+  /**
+   * @return The server name, which defaults to localhost.
+   */
+  public String getServerName() {
+    return serverName;
+  }
+
+  /**
+   * Sets the server name, which defaults to localhost.
+   *
+   * @param serverName The server name.
+   */
+  public void setServerName(String serverName) {
+    this.serverName = serverName;
+  }
+
+  /**
+   * @return The server port, which defaults to 80.
+   */
+  public int getServerPort() {
+    return serverPort;
+  }
+
+  /**
+   * Sets the server port.
+   *
+   * @param serverPort The server port.
+   */
+  public void setServerPort(int serverPort) {
+    this.serverPort = serverPort;
+  }
+
+  @Override
+  public ServletContext getServletContext() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * @return The servlet path, which defaults to the empty string.
    */
   public String getServletPath() {
     return servletPath;
+  }
+
+  /**
+   * Sets the servlet path.
+   *
+   * @param servletPath The servlet path.
+   */
+  public void setServletPath(String servletPath) {
+    this.servletPath = servletPath;
   }
 
   /**
@@ -624,6 +942,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
       session = new MockHttpSession(context);
     }
     return session;
+  }
+
+  /**
+   * Sets a new session.
+   *
+   * @param session The new session.
+   */
+  public void setSession(MockHttpSession session) {
+    this.session = session;
   }
 
   /**
@@ -644,10 +971,27 @@ public class MockHttpServletRequest implements HttpServletRequest {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public boolean isAsyncStarted() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isAsyncSupported() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * @return Nothing, this isn't implemented.
    */
   public boolean isRequestedSessionIdFromCookie() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return Nothing, this isn't implemented.
+   */
+  public boolean isRequestedSessionIdFromURL() {
     throw new UnsupportedOperationException();
   }
 
@@ -661,15 +1005,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * @return Nothing, this isn't implemented.
    */
-  public boolean isRequestedSessionIdFromURL() {
+  public boolean isRequestedSessionIdValid() {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * @return Nothing, this isn't implemented.
+   * @return True if the scheme is HTTPS, false otherwise.
    */
-  public boolean isRequestedSessionIdValid() {
-    throw new UnsupportedOperationException();
+  public boolean isSecure() {
+    return scheme.equals("HTTPS");
   }
 
   /**
@@ -679,10 +1023,115 @@ public class MockHttpServletRequest implements HttpServletRequest {
     throw new UnsupportedOperationException();
   }
 
-  //-------------------------------------------------------------------------
-  //                            Helper methods
-  //-------------------------------------------------------------------------
+  @Override
+  public void login(String username, String password) throws ServletException {
+    throw new UnsupportedOperationException();
+  }
 
+  @Override
+  public void logout() throws ServletException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Removes the attribute with the name given.
+   *
+   * @param name The name of the attribute.
+   */
+  public void removeAttribute(String name) {
+    attributes.remove(name);
+  }
+
+  /**
+   * Removes all the values of the request parameter with the given name
+   *
+   * @param name The name of the parameter.
+   */
+  public void removeParameter(String name) {
+    parameters.remove(name);
+  }
+
+  /**
+   * Sets the attribute given.
+   *
+   * @param name  The name of the attribute.
+   * @param value The attribute value.
+   */
+  public void setAttribute(String name, Object value) {
+    attributes.put(name, value);
+  }
+
+  /**
+   * Modifies the encoding.
+   *
+   * @param encoding The encoding.
+   */
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+
+  /**
+   * Sets the request parameter with the given name to the given value
+   *
+   * @param name  The name of the parameter.
+   * @param value The value of the parameter.
+   */
+  public void setParameter(String name, String value) {
+    List<String> list = parameters.get(name);
+    if (list == null) {
+      list = new ArrayList<String>();
+      parameters.put(name, list);
+    }
+
+    list.add(value);
+  }
+
+  /**
+   * Sets the request parameter with the given name to the given values
+   *
+   * @param name   The name of the parameter.
+   * @param values The values of the parameter.
+   */
+  public void setParameters(String name, String... values) {
+    parameters.put(name, asList(values));
+  }
+
+  /**
+   * Sets the request to a POST method.
+   *
+   * @param post True for a POST.
+   */
+  public void setPost(boolean post) {
+    this.method = post ? Method.POST : Method.GET;
+
+    if (post && contentType == null) {
+      contentType = "application/x-www-form-urlencoded";
+    }
+  }
+
+  /**
+   * Modifies the request URI.
+   *
+   * @param uri The request URI.
+   */
+  public void setUri(String uri) {
+    this.uri = uri;
+  }
+
+  @Override
+  public AsyncContext startAsync() throws IllegalStateException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Will concatenate 2 paths, normalising it. For example : ( /a/b/c + d = /a/b/d, /a/b/c + ../d = /a/d ). Code
@@ -716,349 +1165,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     return theLookupPath + "/" + thePath;
-  }
-
-
-  //-------------------------------------------------------------------------
-  //                          Modification Methods
-  //-------------------------------------------------------------------------
-
-  /**
-   * Adds a request locale.
-   *
-   * @param locale The locale.
-   */
-  public void addLocale(Locale locale) {
-    this.locales.add(locale);
-  }
-
-  /**
-   * @return The request locales vector (changes effect the internal Vector).
-   */
-  public Vector<Locale> getLocalesVector() {
-    return locales;
-  }
-
-  /**
-   * Clears all the request locales.
-   */
-  public void clearLocales() {
-    locales.clear();
-  }
-
-  /**
-   * Sets the input stream.
-   *
-   * @param inputStream The input stream.
-   */
-  public void setInputStream(ServletInputStream inputStream) {
-    this.inputStream = inputStream;
-  }
-
-  /**
-   * Sets the reader.
-   *
-   * @param reader The reader.
-   */
-  public void setReader(BufferedReader reader) {
-    this.reader = reader;
-  }
-
-  /**
-   * Sets the content type of the request.
-   *
-   * @param contentType The new content type.
-   */
-  public void setContentType(String contentType) {
-    this.contentType = contentType;
-  }
-
-  /**
-   * Sets the remote address.
-   *
-   * @param remoteAddr The remote address.
-   */
-  public void setRemoteAddr(String remoteAddr) {
-    this.remoteAddr = remoteAddr;
-  }
-
-  /**
-   * Sets the remote host.
-   *
-   * @param remoteHost The remote host.
-   */
-  public void setRemoteHost(String remoteHost) {
-    this.remoteHost = remoteHost;
-  }
-
-  /**
-   * Sets the scheme, which defaults to HTTP.
-   *
-   * @param scheme The scheme.
-   */
-  public void setScheme(String scheme) {
-    this.scheme = scheme;
-  }
-
-  /**
-   * Sets the server name, which defaults to localhost.
-   *
-   * @param serverName The server name.
-   */
-  public void setServerName(String serverName) {
-    this.serverName = serverName;
-  }
-
-  /**
-   * Allows a header to be added.
-   *
-   * @param name  The header name.
-   * @param value The header value.
-   */
-  public void addHeader(String name, String value) {
-    List<String> values = headers.get(name);
-    if (values == null) {
-      values = new ArrayList<String>();
-      headers.put(name, values);
-    }
-
-    values.add(value);
-  }
-
-  /**
-   * Sets the request parameter with the given name to the given value
-   *
-   * @param name  The name of the parameter.
-   * @param value The value of the parameter.
-   */
-  public void setParameter(String name, String value) {
-    List<String> list = parameters.get(name);
-    if (list == null) {
-      list = new ArrayList<String>();
-      parameters.put(name, list);
-    }
-
-    list.add(value);
-  }
-
-  /**
-   * Removes all the values of the request parameter with the given name
-   *
-   * @param name The name of the parameter.
-   */
-  public void removeParameter(String name) {
-    parameters.remove(name);
-  }
-
-  /**
-   * Clears all the parameters
-   */
-  public void clearParameters() {
-    parameters.clear();
-  }
-
-  /**
-   * Sets the request parameter with the given name to the given values
-   *
-   * @param name   The name of the parameter.
-   * @param values The values of the parameter.
-   */
-  public void setParameters(String name, String... values) {
-    parameters.put(name, asList(values));
-  }
-
-  /**
-   * @return The parameter map.
-   */
-  public Map<String, List<String>> getParameters() {
-    return parameters;
-  }
-
-  /**
-   * Clears all the attributes
-   */
-  public void clearAttributes() {
-    attributes.clear();
-  }
-
-  /**
-   * @return The RequestDispatcher if one was created from this Request
-   */
-  public MockRequestDispatcher getRequestDispatcher() {
-    return dispatcher;
-  }
-
-  /**
-   * Modifies the request URI.
-   *
-   * @param uri The request URI.
-   */
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
-
-  /**
-   * Sets the request to a POST method.
-   *
-   * @param post True for a POST.
-   */
-  public void setPost(boolean post) {
-    this.method = post ? Method.POST : Method.GET;
-
-    if (post && contentType == null) {
-      contentType = "application/x-www-form-urlencoded";
-    }
-  }
-
-  /**
-   * Sets the method of the request.
-   *
-   * @param method The method.
-   */
-  public void setMethod(Method method) {
-    this.method = method;
-    if (method == Method.POST && contentType == null) {
-      contentType = "application/x-www-form-urlencoded";
-    }
-  }
-
-  /**
-   * Modifies the encoding.
-   *
-   * @param encoding The encoding.
-   */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * Sets a new session.
-   *
-   * @param session The new session.
-   */
-  public void setSession(MockHttpSession session) {
-    this.session = session;
-  }
-
-  /**
-   * Sets the remote port.
-   *
-   * @param remotePort The remote port.
-   */
-  public void setRemotePort(int remotePort) {
-    this.remotePort = remotePort;
-  }
-
-  /**
-   * Sets the local name.
-   *
-   * @param localName The local name.
-   */
-  public void setLocalName(String localName) {
-    this.localName = localName;
-  }
-
-  /**
-   * Sets the server port.
-   *
-   * @param serverPort The server port.
-   */
-  public void setServerPort(int serverPort) {
-    this.serverPort = serverPort;
-  }
-
-  /**
-   * Sets the context path.
-   *
-   * @param contextPath The context path.
-   */
-  public void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
-  }
-
-  /**
-   * @return The list of cookies.
-   */
-  public List<Cookie> getCookiesList() {
-    return cookies;
-  }
-
-  /**
-   * Adds a cookie.
-   *
-   * @param cookie The cookie.
-   */
-  public void addCookie(Cookie cookie) {
-    this.cookies.add(cookie);
-  }
-
-  /**
-   * Clears all the cookies.
-   */
-  public void clearCookies() {
-    this.cookies.clear();
-  }
-
-  /**
-   * Sets the path info.
-   *
-   * @param pathInfo The path info.
-   */
-  public void setPathInfo(String pathInfo) {
-    this.pathInfo = pathInfo;
-  }
-
-  /**
-   * Sets the path translated.
-   *
-   * @param pathTranslated The path translated.
-   */
-  public void setPathTranslated(String pathTranslated) {
-    this.pathTranslated = pathTranslated;
-  }
-
-  /**
-   * Sets the remote user.
-   *
-   * @param remoteUser The remote user.
-   */
-  public void setRemoteUser(String remoteUser) {
-    this.remoteUser = remoteUser;
-  }
-
-  /**
-   * Sets the servlet path.
-   *
-   * @param servletPath The servlet path.
-   */
-  public void setServletPath(String servletPath) {
-    this.servletPath = servletPath;
-  }
-
-  /**
-   * Adds a file to the HTTP request body. This must be called if the content type is not set and the InputStream
-   * hasn't been set or retrieved.
-   *
-   * @param key         The name of the form field.
-   * @param file        The file to add.
-   * @param contentType The content type of the file.
-   */
-  public void addFile(String key, File file, String contentType) {
-    if (contentType == null || file == null) {
-      throw new IllegalArgumentException("The FileInfo must have a file and a contentType");
-    }
-    if (inputStreamRetrieved) {
-      throw new IllegalStateException("InputStream retrieved already. Can't add a file to the HTTP request");
-    }
-    if (readerRetrieved) {
-      throw new IllegalStateException("Reader retrieved already. Can't add a file to the HTTP request");
-    }
-    if (this.contentType != null) {
-      throw new IllegalStateException("Content-Type set already. Can't add a file to the HTTP request");
-    }
-
-    this.contentType = "multipart/form-data, boundary=primeframeworkmultipartuploadLKAlskld09309djoid";
-    this.files.put(key, new FileInfo(file, key, contentType));
   }
 
   /**

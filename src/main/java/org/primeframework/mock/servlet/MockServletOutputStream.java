@@ -17,6 +17,7 @@
 package org.primeframework.mock.servlet;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -28,6 +29,16 @@ import java.io.UnsupportedEncodingException;
  */
 public class MockServletOutputStream extends ServletOutputStream {
   protected ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+  @Override
+  public boolean isReady() {
+    return true;
+  }
+
+  @Override
+  public void setWriteListener(WriteListener writeListener) {
+    throw new UnsupportedOperationException();
+  }
 
   public void write(int b) throws IOException {
     baos.write(b);

@@ -13,22 +13,23 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-project(group: "org.primeframework", name: "prime-mock", version: "0.2.0", licenses: ["ApacheV2_0"]) {
+savantVersion = "0.2.0"
+
+project(group: "org.primeframework", name: "prime-mock", version: "0.5.0", licenses: ["ApacheV2_0"]) {
   workflow {
     standard()
   }
 
   dependencies {
     group(name: "provided") {
-      dependency(id: "javax.servlet:servlet-api:2.5.0")
+      dependency(id: "javax.servlet:servlet-api:3.1.0", skipCompatibilityCheck: true)
     }
     group(name: "compile") {
-      dependency(id: "org.apache.commons:commons-fileupload:1.2.1")
-      dependency(id: "org.apache.commons:commons-io:2.1.0")
       dependency(id: "org.slf4j:slf4j-api:1.7.7")
     }
     group(name: "test-compile", export: false) {
-      dependency(id: "org.easymock:easymock:3.2.0")
+      dependency(id: "org.apache.commons:commons-fileupload:1.2.1")
+      dependency(id: "org.apache.commons:commons-io:2.1.0")
       dependency(id: "org.testng:testng:6.8.7")
     }
   }
@@ -39,15 +40,15 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.2.0", licen
 }
 
 // Plugins
-dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:0.2.0-{integration}")
-java = loadPlugin(id: "org.savantbuild.plugin:java:0.2.0-{integration}")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:0.2.0-{integration}")
-idea = loadPlugin(id: "org.savantbuild.plugin:idea:0.2.0-{integration}")
-release = loadPlugin(id: "org.savantbuild.plugin:release-git:0.2.0-{integration}")
+dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:${savantVersion}")
+java = loadPlugin(id: "org.savantbuild.plugin:java:${savantVersion}")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:${savantVersion}")
+idea = loadPlugin(id: "org.savantbuild.plugin:idea:${savantVersion}")
+release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
 
 // Plugin settings
-java.settings.javaVersion = "1.6"
-javaTestNG.settings.javaVersion = "1.6"
+java.settings.javaVersion = "1.8"
+javaTestNG.settings.javaVersion = "1.8"
 
 target(name: "clean", description: "Cleans the project") {
   java.clean()
@@ -71,6 +72,10 @@ target(name: "doc", description: "Generate the project's JavaDoc", dependsOn: ["
 
 target(name: "int", description: "Releases a local integration build of the project", dependsOn: ["test"]) {
   dependency.integrate()
+}
+
+target(name: "list-unused-dependencies", description: "Lists the unused dependencies of the project", dependsOn: ["compile"]) {
+  dependency.listUnusedDependencies()
 }
 
 target(name: "release", description: "Releases a full version of the project", dependsOn: ["test"]) {

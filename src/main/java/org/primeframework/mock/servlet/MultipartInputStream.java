@@ -15,6 +15,7 @@
  */
 package org.primeframework.mock.servlet;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -120,6 +121,21 @@ public class MultipartInputStream extends ServletInputStream {
   @Override
   public int available() throws IOException {
     return bytes.length;
+  }
+
+  @Override
+  public boolean isFinished() {
+    return index == bytes.length;
+  }
+
+  @Override
+  public boolean isReady() {
+    return index != bytes.length;
+  }
+
+  @Override
+  public void setReadListener(ReadListener readListener) {
+    throw new UnsupportedOperationException();
   }
 
   public int read() throws IOException {

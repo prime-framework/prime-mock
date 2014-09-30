@@ -19,16 +19,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * This class tests the mocks.
@@ -58,8 +61,8 @@ public class MockHttpServletRequestTest {
     File file = File.createTempFile("fileuploadtest", ".txt");
     items.get(1).write(file);
 
-    String original = FileUtils.readFileToString(new File("src/test/java/org/primeframework/mock/servlet/test-file.txt"));
-    assertEquals(original, FileUtils.readFileToString(file));
+    String original = new String(Files.readAllBytes(Paths.get("src/test/java/org/primeframework/mock/servlet/test-file.txt")));
+    assertEquals(original, new String(Files.readAllBytes(file.toPath())));
   }
 
   @Test

@@ -15,6 +15,7 @@
  */
 package org.primeframework.mock.servlet;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import java.io.IOException;
 
@@ -29,6 +30,21 @@ public class MockServletInputStream extends ServletInputStream {
 
   public MockServletInputStream() {
     this.bytes = new byte[0];
+  }
+
+  @Override
+  public boolean isFinished() {
+    return index == bytes.length;
+  }
+
+  @Override
+  public boolean isReady() {
+    return index != bytes.length;
+  }
+
+  @Override
+  public void setReadListener(ReadListener readListener) {
+    throw new UnsupportedOperationException();
   }
 
   public MockServletInputStream(byte[] bytes) {

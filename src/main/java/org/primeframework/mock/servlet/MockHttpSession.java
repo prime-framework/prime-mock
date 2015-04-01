@@ -30,7 +30,7 @@ import java.util.Vector;
  * @author Brian Pontarelli
  */
 public class MockHttpSession implements HttpSession {
-  protected final Map<String, Object> attributes = new HashMap<String, Object>();
+  protected final Map<String, Object> attributes = new HashMap<>();
   protected final MockServletContext context;
 
   public MockHttpSession(MockServletContext context) {

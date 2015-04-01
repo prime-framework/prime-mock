@@ -38,38 +38,39 @@ import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 
 /**
  * This class is a mock servlet request.
  *
  * @author Brian Pontarelli
  */
-@SuppressWarnings("unchecked")
 public class MockHttpServletRequest implements HttpServletRequest {
-  protected final Map<String, Object> attributes = new HashMap<String, Object>();
+  protected final Map<String, Object> attributes = new HashMap<>();
 
   protected final MockServletContext context;
 
-  protected final Map<String, FileInfo> files = new HashMap<String, FileInfo>();
+  protected final Map<String, FileInfo> files = new LinkedHashMap<>();
 
-  protected final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+  protected final Map<String, List<String>> headers = new LinkedHashMap<>();
 
-  protected final Map<String, List<String>> parameters = new HashMap<String, List<String>>();
+  protected final Map<String, List<String>> parameters = new LinkedHashMap<>();
 
   protected String contentType = null;
 
   protected String contextPath = "";
 
-  protected List<Cookie> cookies = new ArrayList<Cookie>();
+  protected List<Cookie> cookies = new ArrayList<>();
 
   protected MockRequestDispatcher dispatcher;
 
@@ -81,7 +82,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   protected String localName = "localhost";
 
-  protected Vector<Locale> locales = new Vector<Locale>(asList(Locale.getDefault()));
+  protected Vector<Locale> locales = new Vector<>(singletonList(Locale.getDefault()));
 
   protected Method method;
 
@@ -299,8 +300,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * The attribute names.
    */
-  public Enumeration getAttributeNames() {
-    return new Vector(attributes.keySet()).elements();
+  public Enumeration<String> getAttributeNames() {
+    return new Vector<>(attributes.keySet()).elements();
   }
 
   /**
@@ -425,21 +426,21 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * @return The header names.
    */
-  public Enumeration getHeaderNames() {
-    return new Vector(headers.keySet()).elements();
+  public Enumeration<String> getHeaderNames() {
+    return new Vector<>(headers.keySet()).elements();
   }
 
   /**
    * @param name The name of the headers.
    * @return The headers, never null.
    */
-  public Enumeration getHeaders(String name) {
+  public Enumeration<String> getHeaders(String name) {
     List<String> values = headers.get(name);
     if (values == null || values.size() == 0) {
-      return new Vector().elements();
+      return new Vector<String>().elements();
     }
 
-    return new Vector(values).elements();
+    return new Vector<>(values).elements();
   }
 
   /**
@@ -527,7 +528,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * @return The request locales.
    */
-  public Enumeration getLocales() {
+  public Enumeration<Locale> getLocales() {
     return locales.elements();
   }
 
@@ -573,12 +574,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return null;
   }
 
-  public Map getParameterMap() {
+  public Map<String, String[]> getParameterMap() {
     if (!hasParameters()) {
-      return Collections.emptyMap();
+      return emptyMap();
     }
 
-    Map<String, String[]> params = new HashMap<String, String[]>();
+    Map<String, String[]> params = new LinkedHashMap<>();
     for (String key : parameters.keySet()) {
       params.put(key, parameters.get(key).toArray(new String[parameters.get(key).size()]));
     }
@@ -586,12 +587,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return params;
   }
 
-  public Enumeration getParameterNames() {
+  public Enumeration<String> getParameterNames() {
     if (!hasParameters()) {
-      return new Vector().elements();
+      return new Vector<String>().elements();
     }
 
-    return new Vector(parameters.keySet()).elements();
+    return new Vector<>(parameters.keySet()).elements();
   }
 
   public String[] getParameterValues(String name) {
@@ -1079,7 +1080,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public void setParameter(String name, String value) {
     List<String> list = parameters.get(name);
     if (list == null) {
-      list = new ArrayList<String>();
+      list = new ArrayList<>();
       parameters.put(name, list);
     }
 
@@ -1183,7 +1184,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
 
-  public static enum Method {
+  public enum Method {
     GET,
     POST,
     PUT,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2015, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -294,6 +294,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   public void sendRedirect(String url) throws IOException {
     this.redirect = url;
+    this.code = HttpServletResponse.SC_FOUND;
   }
 
   public void setContentLength(int length) {

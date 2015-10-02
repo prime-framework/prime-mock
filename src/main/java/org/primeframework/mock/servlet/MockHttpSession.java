@@ -97,6 +97,7 @@ public class MockHttpSession implements HttpSession {
   }
 
   public void invalidate() {
+    attributes.clear();
   }
 
   public boolean isNew() {

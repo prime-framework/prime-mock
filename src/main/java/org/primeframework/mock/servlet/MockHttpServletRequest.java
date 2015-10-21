@@ -848,7 +848,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    */
   public StringBuffer getRequestURL() {
-    return new StringBuffer(scheme + "://" + serverName + (serverPort != 80 ? ":" + serverPort : "") + contextPath + "/" + uri);
+    return new StringBuffer(scheme + "://" + serverName + (serverPort != 80 ? ":" + serverPort : "") + contextPath + uri);
   }
 
   //-------------------------------------------------------------------------
@@ -1079,18 +1079,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @param value The value of the parameter.
    */
   public void setParameter(String name, String value) {
-    if (name.contains("+") || name.contains("%")) {
-      try {
-        name = URLDecoder.decode(name, "UTF-8");
-      } catch (UnsupportedEncodingException ignore) {
-      }
-    }
-    if (value.contains("+") || value.contains("%")) {
-      try {
-        value = URLDecoder.decode(value, "UTF-8");
-      } catch (UnsupportedEncodingException ignore) {
-      }
-    }
     List<String> list = parameters.get(name);
     if (list == null) {
       list = new ArrayList<>();

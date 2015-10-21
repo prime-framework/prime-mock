@@ -848,7 +848,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    */
   public StringBuffer getRequestURL() {
-    throw new UnsupportedOperationException();
+    return new StringBuffer(scheme + "://" + serverName + (serverPort != 80 ? ":" + serverPort : "") + contextPath + "/" + uri);
   }
 
   //-------------------------------------------------------------------------

@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -1078,6 +1079,18 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @param value The value of the parameter.
    */
   public void setParameter(String name, String value) {
+    if (name.contains("+") || name.contains("%")) {
+      try {
+        name = URLDecoder.decode(name, "UTF-8");
+      } catch (UnsupportedEncodingException ignore) {
+      }
+    }
+    if (value.contains("+") || value.contains("%")) {
+      try {
+        value = URLDecoder.decode(value, "UTF-8");
+      } catch (UnsupportedEncodingException ignore) {
+      }
+    }
     List<String> list = parameters.get(name);
     if (list == null) {
       list = new ArrayList<>();

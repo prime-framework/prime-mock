@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2009-2016, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,6 @@ public class MockServletInputStream extends ServletInputStream {
     if (index == bytes.length) {
       return -1;
     }
-    return bytes[index++];
+    return Byte.toUnsignedInt(bytes[index++]);
   }
 }

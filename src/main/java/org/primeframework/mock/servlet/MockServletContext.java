@@ -56,7 +56,7 @@ public class MockServletContext implements ServletContext {
 
   private final static Logger logger = LoggerFactory.getLogger(MockServletContext.class);
 
-  public final Map<String, Object> attributes = new HashMap<String, Object>();
+  public final Map<String, Object> attributes = new HashMap<>();
 
   public ClassPath classPath;
 

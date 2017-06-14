@@ -13,9 +13,9 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-savantVersion = "0.4.1"
+savantVersion = "1.0.0"
 
-project(group: "org.primeframework", name: "prime-mock", version: "0.5.6", licenses: ["ApacheV2_0"]) {
+project(group: "org.primeframework", name: "prime-mock", version: "0.5.7", licenses: ["ApacheV2_0"]) {
   workflow {
     standard()
   }

@@ -60,7 +60,7 @@ public class MockServletContext implements ServletContext {
 
   public ClassPath classPath;
 
-  public String contextPath;
+  public String contextPath = "";
 
   public File webDir;
 

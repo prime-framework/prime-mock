@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,7 +261,7 @@ public class MockServletContext implements ServletContext {
     }
 
     File f = new File(webDir, path);
-    if (f.isFile()) {
+    if (f.exists()) {
       return f.getAbsolutePath();
     }
 

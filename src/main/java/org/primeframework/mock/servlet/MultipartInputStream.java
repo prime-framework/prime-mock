@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2010, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,16 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class is a servlet input stream of multipart handling.
  *
  * @author Brian Pontarelli
  */
 public class MultipartInputStream extends ServletInputStream {
+  public static final Logger logger = LoggerFactory.getLogger(MultipartInputStream.class);
   public static final byte[] BOUNDARY = getBytes("--primeframeworkmultipartuploadLKAlskld09309djoid");
   public static final byte[] CLOSE_BOUNDARY = getBytes("--");
   public static final byte[] CRLF = getBytes("\r\n");
@@ -115,7 +119,7 @@ public class MultipartInputStream extends ServletInputStream {
     baos.write(CRLF);
     baos.flush();
     bytes = baos.toByteArray();
-    System.out.println("Body is " + bytes.length);
+    logger.debug("Body is " + bytes.length);
   }
 
   @Override

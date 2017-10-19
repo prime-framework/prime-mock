@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -58,6 +57,8 @@ import static java.util.Collections.singletonList;
  */
 public class MockHttpServletRequest implements HttpServletRequest {
   protected final Map<String, Object> attributes = new HashMap<>();
+
+  protected final MockContainer container;
 
   protected final MockServletContext context;
 
@@ -115,75 +116,46 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   protected String uri;
 
-  public MockHttpServletRequest(String uri, MockServletContext context) {
-    this.uri = uri;
-    this.context = context;
+  protected MockHttpServletRequest(MockContainer container) {
+    this.container = container;
+    this.context = container.getContext();
   }
 
-  public MockHttpServletRequest(String uri, MockHttpSession session) {
+  protected MockHttpServletRequest(String uri, MockContainer container) {
     this.uri = uri;
-    this.session = session;
-    this.context = session.context;
+    this.container = container;
+    this.context = container.getContext();
   }
 
-  public MockHttpServletRequest(String uri, Locale locale, boolean post, String encoding,
-                                MockServletContext context) {
+  protected MockHttpServletRequest(String uri, Locale locale, boolean post, String encoding,
+                                MockContainer container) {
     this.uri = uri;
     this.locales.add(locale);
     this.method = post ? Method.POST : Method.GET;
     this.encoding = encoding;
-    this.context = context;
-    this.session = new MockHttpSession(context);
+    this.container = container;
+    this.context = container.getContext();
 
     if (post) {
       contentType = "application/x-www-form-urlencoded";
     }
   }
 
-  public MockHttpServletRequest(String uri, Locale locale, boolean post, String encoding,
-                                MockHttpSession session) {
-    this.uri = uri;
-    this.locales.add(locale);
-    this.method = post ? Method.POST : Method.GET;
-    this.encoding = encoding;
-    this.session = session;
-    this.context = session.context;
 
-    if (post) {
-      contentType = "application/x-www-form-urlencoded";
-    }
-  }
-
-  public MockHttpServletRequest(Map<String, List<String>> parameters, String uri, String encoding,
-                                Locale locale, boolean post, MockHttpSession session) {
+  protected MockHttpServletRequest(Map<String, List<String>> parameters, String uri, String encoding,
+                                Locale locale, boolean post, MockContainer container) {
     this.parameters.putAll(parameters);
     this.uri = uri;
     this.encoding = encoding;
     this.locales.add(locale);
     this.method = post ? Method.POST : Method.GET;
-    this.session = session;
-    this.context = session.context;
+    this.container = container;
+    this.context = container.getContext();
 
     if (post) {
       contentType = "application/x-www-form-urlencoded";
     }
   }
-
-  public MockHttpServletRequest(Map<String, List<String>> parameters, String uri, String encoding,
-                                Locale locale, boolean post, MockServletContext context) {
-    this.parameters.putAll(parameters);
-    this.uri = uri;
-    this.encoding = encoding;
-    this.locales.add(locale);
-    this.method = post ? Method.POST : Method.GET;
-    this.context = context;
-    this.session = new MockHttpSession(context);
-
-    if (post) {
-      contentType = "application/x-www-form-urlencoded";
-    }
-  }
-
 
   //-------------------------------------------------------------------------
   //  javax.servlet.ServletRequest methods
@@ -940,10 +912,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The session.
    */
   public HttpSession getSession() {
-    if (session == null) {
-      session = new MockHttpSession(context);
-    }
-    return session;
+    return container.getSession();
   }
 
   /**
@@ -959,11 +928,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The session.
    */
   public HttpSession getSession(boolean create) {
-    if (session == null && create) {
-      session = new MockHttpSession(context);
-    }
-
-    return session;
+    return container.getSession(create);
   }
 
   /**

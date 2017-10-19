@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,11 @@ import java.util.Vector;
  */
 public class MockHttpSession implements HttpSession {
   protected final Map<String, Object> attributes = new HashMap<>();
-  protected final MockServletContext context;
 
-  public MockHttpSession(MockServletContext context) {
-    this.context = context;
+  private MockContainer container;
+
+  protected MockHttpSession(MockContainer container) {
+    this.container = container;
   }
 
   public long getCreationTime() {
@@ -50,7 +51,7 @@ public class MockHttpSession implements HttpSession {
   }
 
   public ServletContext getServletContext() {
-    return context;
+    return container.getContext();
   }
 
   public void setMaxInactiveInterval(int i) {

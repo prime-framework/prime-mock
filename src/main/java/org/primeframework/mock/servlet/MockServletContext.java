@@ -64,7 +64,7 @@ public class MockServletContext implements ServletContext {
 
   public File webDir;
 
-  public MockServletContext() {
+  protected MockServletContext() {
     logger.debug("Built MockServletContext without webDir");
     try {
       classPath = ClassPath.getCurrentClassPath();
@@ -73,76 +73,10 @@ public class MockServletContext implements ServletContext {
     }
   }
 
-  public MockServletContext(File webDir) {
+  protected MockServletContext(File webDir) {
     this();
     logger.debug("Built MockServletContext with webDir " + webDir.getAbsolutePath());
     this.webDir = webDir;
-  }
-
-  public Object getAttribute(String name) {
-    return attributes.get(name);
-  }
-
-  public Enumeration getAttributeNames() {
-    return new Vector(attributes.keySet()).elements();
-  }
-
-  public ServletContext getContext(String s) {
-    return null;
-  }
-
-  @Override
-  public String getContextPath() {
-    return contextPath;
-  }
-
-  public String getInitParameter(String s) {
-    return null;
-  }
-
-  @Override
-  public int getEffectiveMajorVersion() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int getEffectiveMinorVersion() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean setInitParameter(String name, String value) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Dynamic addServlet(String servletName, String className) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Dynamic addServlet(String servletName, Servlet servlet) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ServletRegistration getServletRegistration(String servletName) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Map<String, ? extends ServletRegistration> getServletRegistrations() {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -157,41 +91,6 @@ public class MockServletContext implements ServletContext {
 
   @Override
   public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public FilterRegistration getFilterRegistration(String filterName) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public SessionCookieConfig getSessionCookieConfig() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
     throw new UnsupportedOperationException();
   }
 
@@ -211,17 +110,32 @@ public class MockServletContext implements ServletContext {
   }
 
   @Override
+  public Dynamic addServlet(String servletName, String className) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Dynamic addServlet(String servletName, Servlet servlet) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public JspConfigDescriptor getJspConfigDescriptor() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ClassLoader getClassLoader() {
+  public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
     throw new UnsupportedOperationException();
   }
 
@@ -230,13 +144,69 @@ public class MockServletContext implements ServletContext {
     throw new UnsupportedOperationException();
   }
 
+  public Object getAttribute(String name) {
+    return attributes.get(name);
+  }
+
+  public Enumeration getAttributeNames() {
+    return new Vector(attributes.keySet()).elements();
+  }
+
   @Override
-  public String getVirtualServerName() {
+  public ClassLoader getClassLoader() {
     throw new UnsupportedOperationException();
+  }
+
+  public ServletContext getContext(String s) {
+    return null;
+  }
+
+  @Override
+  public String getContextPath() {
+    return contextPath;
+  }
+
+  @Override
+  public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getEffectiveMajorVersion() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getEffectiveMinorVersion() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public FilterRegistration getFilterRegistration(String filterName) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
+    throw new UnsupportedOperationException();
+  }
+
+  public String getInitParameter(String s) {
+    return null;
   }
 
   public Enumeration getInitParameterNames() {
     return null;
+  }
+
+  @Override
+  public JspConfigDescriptor getJspConfigDescriptor() {
+    throw new UnsupportedOperationException();
   }
 
   public int getMajorVersion() {
@@ -303,7 +273,7 @@ public class MockServletContext implements ServletContext {
       if (url != null) {
         return url.openStream();
       }
-    } catch (Exception e) {
+    } catch (Exception ignore) {
     }
 
     return null;
@@ -311,7 +281,7 @@ public class MockServletContext implements ServletContext {
 
   public Set getResourcePaths(String path) {
     if (path.equals(WEB_INF_LIB)) {
-      Set<String> finalPaths = new HashSet<String>();
+      Set<String> finalPaths = new HashSet<>();
       Set<String> urls = new HashSet(classPath.getNames());
       for (String url : urls) {
         int index = url.lastIndexOf("/");
@@ -328,7 +298,7 @@ public class MockServletContext implements ServletContext {
         path = path.substring(1);
       }
 
-      Set<String> urls = new HashSet<String>();
+      Set<String> urls = new HashSet<>();
       File f = new File(webDir, path);
       if (f.isDirectory()) {
         File[] files = f.listFiles();
@@ -361,8 +331,28 @@ public class MockServletContext implements ServletContext {
     return null;
   }
 
+  @Override
+  public ServletRegistration getServletRegistration(String servletName) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+    throw new UnsupportedOperationException();
+  }
+
   public Enumeration getServlets() {
     return null;
+  }
+
+  @Override
+  public SessionCookieConfig getSessionCookieConfig() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getVirtualServerName() {
+    throw new UnsupportedOperationException();
   }
 
   public void log(String s) {
@@ -380,5 +370,15 @@ public class MockServletContext implements ServletContext {
 
   public void setAttribute(String name, Object value) {
     attributes.put(name, value);
+  }
+
+  @Override
+  public boolean setInitParameter(String name, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
+    throw new UnsupportedOperationException();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2010, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
@@ -31,6 +33,8 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -41,7 +45,7 @@ import static org.testng.Assert.assertTrue;
 public class MockHttpServletRequestTest {
   @Test
   public void multipart() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest("/foo", new MockServletContext());
+    MockHttpServletRequest request = new MockContainer().newServletRequest("/foo");
     request.addFile("file", new File("src/test/java/org/primeframework/mock/servlet/test-file.txt"), "text/plain");
     request.setParameter("test", "test");
 
@@ -71,8 +75,26 @@ public class MockHttpServletRequestTest {
     test(new File("src/test/java/org/primeframework/mock/servlet/test.gif"), "image/gif");
   }
 
+  @Test
+  public void sessionDefaults() throws Exception {
+    MockHttpServletRequest request = new MockContainer().newServletRequest("/foo");
+    assertNull(request.session);
+    assertNull(request.getSession(false));
+    assertNotNull(request.getSession());
+
+    request = new MockContainer().newServletRequest("/foo", Locale.ENGLISH, true, "UTF-8");
+    assertNull(request.session);
+    assertNull(request.getSession(false));
+    assertNotNull(request.getSession());
+
+    request = new MockContainer().newServletRequest(Collections.emptyMap(), "/foo", "UTF-8", Locale.ENGLISH, true);
+    assertNull(request.session);
+    assertNull(request.getSession(false));
+    assertNotNull(request.getSession());
+  }
+
   private void test(File file, String contentType) throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest("/foo", new MockServletContext());
+    MockHttpServletRequest request = new MockContainer().newServletRequest("/foo");
     request.addFile("file", file, contentType);
     request.setParameter("test", "test");
 

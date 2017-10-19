@@ -17,6 +17,7 @@ package org.primeframework.mock.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -89,6 +90,19 @@ public class MockContainer {
    */
   public void resetContext() {
     context = context.webDir == null ? new MockServletContext() : new MockServletContext(context.webDir);
+  }
+
+  public void resetContextPreserveAttributes(String... keys) {
+    Map<String, Object> preserved = new HashMap<>(keys.length);
+    for (String key : keys) {
+      preserved.put(key, context.getAttribute(key));
+    }
+
+    resetContext();
+
+    for (String key : preserved.keySet()) {
+      context.setAttribute(key, preserved.get(key));
+    }
   }
 
   /**

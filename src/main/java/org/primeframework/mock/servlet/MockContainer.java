@@ -16,11 +16,14 @@
 package org.primeframework.mock.servlet;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.File;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Mock container to manage the session and context references.
@@ -30,14 +33,50 @@ import java.util.Map;
 public class MockContainer {
   private MockServletContext context;
 
+  private MockHttpServletRequest request;
+
+  private MockHttpServletResponse response;
+
+  private Set<String> savedContextKeys;
+
   private MockHttpSession session;
 
   public MockContainer() {
     this.context = new MockServletContext();
+    request = new MockHttpServletRequest("", this);
+    response = new MockHttpServletResponse();
+  }
+
+  /**
+   * Clear the <code>ServletContext</code> attributes.
+   */
+  public void clearContextAttributes() {
+    context.attributes.clear();
+  }
+
+  public MockContainer contextSavePoint() {
+    savedContextKeys = new HashSet<>(context.attributes.keySet());
+    return this;
   }
 
   public MockServletContext getContext() {
     return context;
+  }
+
+  public HttpServletRequestWrapper getHttpServletRequestWrapper() {
+    return new HttpServletRequestWrapper(request);
+  }
+
+  public MockHttpServletRequest getRequest() {
+    return request;
+  }
+
+  public void setRequest(MockHttpServletRequest request) {
+    this.request = request;
+  }
+
+  public MockHttpServletResponse getResponse() {
+    return response;
   }
 
   /**
@@ -65,23 +104,28 @@ public class MockContainer {
 
   public MockHttpServletRequest newServletRequest(Map<String, List<String>> parameters, String uri, String encoding,
                                                   Locale locale, boolean post) {
-    return new MockHttpServletRequest(parameters, uri, encoding, locale, post, this);
+    request = new MockHttpServletRequest(parameters, uri, encoding, locale, post, this);
+    return request;
   }
 
   public MockHttpServletRequest newServletRequest() {
-    return new MockHttpServletRequest(this);
+    request = new MockHttpServletRequest(this);
+    return request;
   }
 
   public MockHttpServletRequest newServletRequest(String uri) {
-    return new MockHttpServletRequest(uri, this);
+    request = new MockHttpServletRequest(uri, this);
+    return request;
   }
 
   public MockHttpServletRequest newServletRequest(String uri, Locale locale, boolean post, String encoding) {
-    return new MockHttpServletRequest(uri, locale, post, encoding, this);
+    request = new MockHttpServletRequest(uri, locale, post, encoding, this);
+    return request;
   }
 
   public MockHttpServletResponse newServletResponse() {
-    return new MockHttpServletResponse();
+    response = new MockHttpServletResponse();
+    return response;
   }
 
   /**
@@ -92,24 +136,12 @@ public class MockContainer {
     context = context.webDir == null ? new MockServletContext() : new MockServletContext(context.webDir);
   }
 
-  public void resetContextPreserveAttributes(String... keys) {
-    Map<String, Object> preserved = new HashMap<>(keys.length);
-    for (String key : keys) {
-      preserved.put(key, context.getAttribute(key));
-    }
-
-    resetContext();
-
-    for (String key : preserved.keySet()) {
-      context.setAttribute(key, preserved.get(key));
-    }
+  public void resetRequest() {
+    request = new MockHttpServletRequest("", this);
   }
 
-  /**
-   * Clear the <code>ServletContext</code> attributes.
-   */
-  public void resetContextAttributes() {
-    context.attributes.clear();
+  public void resetResponse() {
+    response = new MockHttpServletResponse();
   }
 
   /**
@@ -118,5 +150,11 @@ public class MockContainer {
    */
   public void resetSession() {
     session = null;
+  }
+
+  public MockContainer restoreContextToSavePoint(String... keys) {
+    Set<String> keep = new HashSet<>(Arrays.asList(keys));
+    context.attributes.keySet().removeIf(key -> !keep.contains(key) && !savedContextKeys.contains(key));
+    return this;
   }
 }

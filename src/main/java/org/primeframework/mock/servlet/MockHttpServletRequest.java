@@ -1149,7 +1149,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return files.isEmpty();
   }
 
-
   public enum Method {
     GET,
     POST,

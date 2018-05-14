@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2018, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   protected MockHttpServletRequest(String uri, Locale locale, boolean post, String encoding,
-                                MockContainer container) {
+                                   MockContainer container) {
     this.uri = uri;
     this.locales.add(locale);
     this.method = post ? Method.POST : Method.GET;
@@ -143,7 +143,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 
   protected MockHttpServletRequest(Map<String, List<String>> parameters, String uri, String encoding,
-                                Locale locale, boolean post, MockContainer container) {
+                                   Locale locale, boolean post, MockContainer container) {
     this.parameters.putAll(parameters);
     this.uri = uri;
     this.encoding = encoding;
@@ -370,12 +370,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The date header (if it exists), or -1.
    */
   public long getDateHeader(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
+    String value = getHeader(name);
+    if (value == null) {
       return -1;
     }
 
-    return Long.parseLong(values.get(0));
+    return Long.parseLong(value);
   }
 
   @Override
@@ -388,12 +388,17 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The header or null.
    */
   public String getHeader(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
+    if (name == null) {
       return null;
     }
 
-    return values.get(0);
+    for (String key : headers.keySet()) {
+      if (key.equalsIgnoreCase(name)) {
+        return headers.get(key).get(0);
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -408,12 +413,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The headers, never null.
    */
   public Enumeration<String> getHeaders(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
-      return new Vector<String>().elements();
+    for (String key : headers.keySet()) {
+      if (key.equalsIgnoreCase(name)) {
+        return new Vector<>(headers.get(key)).elements();
+      }
     }
 
-    return new Vector<>(values).elements();
+    return new Vector<String>().elements();
   }
 
   /**
@@ -449,12 +455,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The header or -1.
    */
   public int getIntHeader(String name) {
-    List<String> values = headers.get(name);
-    if (values == null || values.size() == 0) {
+    String value = getHeader(name);
+    if (value == null) {
       return -1;
     }
 
-    return Integer.parseInt(values.get(0));
+    return Integer.parseInt(value);
   }
 
   public String getLocalAddr() {

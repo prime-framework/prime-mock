@@ -19,6 +19,9 @@ package org.primeframework.mock.servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +37,11 @@ public class MockHttpSession implements HttpSession {
 
   private MockContainer container;
 
+  private ZonedDateTime created;
+
   protected MockHttpSession(MockContainer container) {
     this.container = container;
+    created = ZonedDateTime.now();
   }
 
   public void clear() {
@@ -51,15 +57,28 @@ public class MockHttpSession implements HttpSession {
   }
 
   public long getCreationTime() {
-    return 0;
+    if (created == null) {
+      return 0;
+    }
+
+    return created.toInstant().toEpochMilli();
   }
 
   public String getId() {
     return "1";
   }
 
+  /**
+   * This is not currently updated correctly. It will be equal to the created time.
+   *
+   * @return the last accessed time in epoch millis
+   */
   public long getLastAccessedTime() {
-    return 0;
+    if (created == null) {
+      return 0;
+    }
+
+    return created.toInstant().toEpochMilli();
   }
 
   public int getMaxInactiveInterval() {
@@ -88,6 +107,7 @@ public class MockHttpSession implements HttpSession {
   public void invalidate() {
     attributes.clear();
     container.resetSession();
+    created = ZonedDateTime.ofInstant(Instant.EPOCH, ZoneId.of("UTC"));
   }
 
   public boolean isNew() {

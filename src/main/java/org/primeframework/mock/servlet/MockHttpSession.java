@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class MockHttpSession implements HttpSession {
 
   protected MockHttpSession(MockContainer container) {
     this.container = container;
-    created = ZonedDateTime.now();
+    created = ZonedDateTime.now(ZoneOffset.UTC);
   }
 
   public void clear() {

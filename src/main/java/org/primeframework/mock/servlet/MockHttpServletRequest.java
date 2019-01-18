@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2018, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2019, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
   protected MockHttpSession session;
 
   protected String uri;
+
+  private String overrideMethod;
 
   protected MockHttpServletRequest(MockContainer container) {
     this.container = container;
@@ -264,8 +266,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   */
   public Object getAttribute(String name) {
     return attributes.get(name);
   }
@@ -522,7 +522,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return GET or POST, depending on the constructor or post flag setup.
    */
   public String getMethod() {
-    return method.toString();
+    if (overrideMethod == null) {
+      return method.toString();
+    }
+
+    return overrideMethod;
   }
 
   /**
@@ -823,8 +827,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return uri;
   }
 
-  /**
-   */
   public StringBuffer getRequestURL() {
     return new StringBuffer(scheme + "://" + serverName + (serverPort != 80 ? ":" + serverPort : "") + contextPath + uri);
   }
@@ -1104,6 +1106,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
     throw new UnsupportedOperationException();
+  }
+
+  public void setOverrideMethod(String method) {
+    overrideMethod = method;
   }
 
   /**

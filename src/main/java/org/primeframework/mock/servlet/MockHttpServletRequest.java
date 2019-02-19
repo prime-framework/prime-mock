@@ -19,7 +19,6 @@ import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -38,6 +37,7 @@ import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,6 +55,7 @@ import static java.util.Collections.singletonList;
  *
  * @author Brian Pontarelli
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class MockHttpServletRequest implements HttpServletRequest {
   protected final Map<String, Object> attributes = new HashMap<>();
 
@@ -104,11 +105,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   protected String remoteUser;
 
-  protected String scheme = "HTTP";
+  protected String scheme;
 
-  protected String serverName = "localhost";
+  protected String serverName;
 
-  protected int serverPort = 10000;
+  protected int serverPort;
 
   protected String servletPath = "";
 
@@ -119,28 +120,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
   private String overrideMethod;
 
   protected MockHttpServletRequest(MockContainer container) {
-    this.container = container;
-    this.context = container.getContext();
+    this(null, container);
   }
 
   protected MockHttpServletRequest(String uri, MockContainer container) {
-    this.uri = uri;
-    this.container = container;
-    this.context = container.getContext();
+    this(uri, null, false, null, container);
   }
 
-  protected MockHttpServletRequest(String uri, Locale locale, boolean post, String encoding,
-                                   MockContainer container) {
-    this.uri = uri;
-    this.locales.add(locale);
-    this.method = post ? Method.POST : Method.GET;
-    this.encoding = encoding;
-    this.container = container;
-    this.context = container.getContext();
-
-    if (post) {
-      contentType = "application/x-www-form-urlencoded";
-    }
+  protected MockHttpServletRequest(String uri, Locale locale, boolean post, String encoding, MockContainer container) {
+    this(Collections.emptyMap(), uri, encoding, locale, post, container);
   }
 
 
@@ -154,14 +142,18 @@ public class MockHttpServletRequest implements HttpServletRequest {
     this.container = container;
     this.context = container.getContext();
 
-    if (post) {
-      contentType = "application/x-www-form-urlencoded";
-    }
-  }
+    // These also set headers
+    setScheme("HTTP");
+    setServerName("localhost");
+    setServerPort(10_000);
 
-  //-------------------------------------------------------------------------
-  //  javax.servlet.ServletRequest methods
-  //-------------------------------------------------------------------------
+    if (post) {
+      setContentType("application/x-www-form-urlencoded");
+    }
+
+    // User agent
+    headers.computeIfAbsent("User-Agent", key -> new ArrayList<>()).add("Prime-Mock");
+  }
 
   /**
    * Adds a cookie.
@@ -198,6 +190,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     this.files.put(key, new FileInfo(file, key, contentType));
   }
 
+  //-------------------------------------------------------------------------
+  //  javax.servlet.ServletRequest methods
+  //-------------------------------------------------------------------------
+
   /**
    * Allows a header to be added.
    *
@@ -205,12 +201,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @param value The header value.
    */
   public void addHeader(String name, String value) {
-    List<String> values = headers.get(name);
-    if (values == null) {
-      values = new ArrayList<String>();
-      headers.put(name, values);
-    }
-
+    List<String> values = headers.computeIfAbsent(name, key -> new ArrayList<>());
     values.add(value);
   }
 
@@ -224,7 +215,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpServletResponse response) {
     throw new UnsupportedOperationException();
   }
 
@@ -333,6 +324,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void setContentType(String contentType) {
     this.contentType = contentType;
+    headers.computeIfAbsent("Content-Type", key -> new ArrayList<>()).add(contentType);
   }
 
   /**
@@ -355,7 +347,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return Any cookies setup.
    */
   public Cookie[] getCookies() {
-    return cookies.toArray(new Cookie[cookies.size()]);
+    return cookies.toArray(new Cookie[0]);
   }
 
   /**
@@ -499,11 +491,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return locales.get(0);
   }
 
-
-  //-------------------------------------------------------------------------
-  //  javax.servlet.http.HttpServletRequest methods
-  //-------------------------------------------------------------------------
-
   /**
    * @return The request locales.
    */
@@ -517,6 +504,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public Vector<Locale> getLocalesVector() {
     return locales;
   }
+
+
+  //-------------------------------------------------------------------------
+  //  javax.servlet.http.HttpServletRequest methods
+  //-------------------------------------------------------------------------
 
   /**
    * @return GET or POST, depending on the constructor or post flag setup.
@@ -545,7 +537,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return The parameter or null.
    */
   public String getParameter(String name) {
-    if (!hasParameters()) {
+    if (doesNotHaveParameters()) {
       return null;
     }
 
@@ -558,20 +550,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   public Map<String, String[]> getParameterMap() {
-    if (!hasParameters()) {
+    if (doesNotHaveParameters()) {
       return emptyMap();
     }
 
     Map<String, String[]> params = new LinkedHashMap<>();
     for (String key : parameters.keySet()) {
-      params.put(key, parameters.get(key).toArray(new String[parameters.get(key).size()]));
+      params.put(key, parameters.get(key).toArray(new String[0]));
     }
 
     return params;
   }
 
   public Enumeration<String> getParameterNames() {
-    if (!hasParameters()) {
+    if (doesNotHaveParameters()) {
       return new Vector<String>().elements();
     }
 
@@ -579,13 +571,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   public String[] getParameterValues(String name) {
-    if (!hasParameters()) {
+    if (doesNotHaveParameters()) {
       return null;
     }
 
     List<String> list = parameters.get(name);
     if (list != null) {
-      return list.toArray(new String[list.size()]);
+      return list.toArray(new String[0]);
     }
 
     return null;
@@ -599,12 +591,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public Part getPart(String name) throws IOException, ServletException {
+  public Part getPart(String name) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Collection<Part> getParts() throws IOException, ServletException {
+  public Collection<Part> getParts() {
     throw new UnsupportedOperationException();
   }
 
@@ -828,12 +820,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   public StringBuffer getRequestURL() {
-    return new StringBuffer(scheme + "://" + serverName + (serverPort != 80 ? ":" + serverPort : "") + contextPath + uri);
+    return new StringBuffer(getBaseURL() + contextPath + uri);
   }
-
-  //-------------------------------------------------------------------------
-  //                            Helper methods
-  //-------------------------------------------------------------------------
 
   /**
    * @return Nothing, not implemented
@@ -842,17 +830,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
     throw new UnsupportedOperationException();
   }
 
-
-  //-------------------------------------------------------------------------
-  //                          Modification Methods
-  //-------------------------------------------------------------------------
-
   /**
    * @return The scheme, which defaults to HTTP.
    */
   public String getScheme() {
     return scheme;
   }
+
+  //-------------------------------------------------------------------------
+  //                            Helper methods
+  //-------------------------------------------------------------------------
 
   /**
    * Sets the scheme, which defaults to HTTP.
@@ -861,7 +848,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void setScheme(String scheme) {
     this.scheme = scheme;
+    updateCommonHeaders();
   }
+
+
+  //-------------------------------------------------------------------------
+  //                          Modification Methods
+  //-------------------------------------------------------------------------
 
   /**
    * @return The server name, which defaults to localhost.
@@ -877,6 +870,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void setServerName(String serverName) {
     this.serverName = serverName;
+    updateCommonHeaders();
   }
 
   /**
@@ -893,6 +887,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void setServerPort(int serverPort) {
     this.serverPort = serverPort;
+    updateCommonHeaders();
   }
 
   @Override
@@ -999,12 +994,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public void login(String username, String password) throws ServletException {
+  public void login(String username, String password) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void logout() throws ServletException {
+  public void logout() {
     throw new UnsupportedOperationException();
   }
 
@@ -1015,6 +1010,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void removeAttribute(String name) {
     attributes.remove(name);
+  }
+
+  /**
+   * Removes all of the headers with the given name.
+   *
+   * @param name The name.
+   */
+  public void removeHeader(String name) {
+    headers.remove(name);
   }
 
   /**
@@ -1045,6 +1049,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     this.encoding = encoding;
   }
 
+  public void setOverrideMethod(String method) {
+    overrideMethod = method;
+  }
+
   /**
    * Sets the request parameter with the given name to the given value
    *
@@ -1052,12 +1060,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @param value The value of the parameter.
    */
   public void setParameter(String name, String value) {
-    List<String> list = parameters.get(name);
-    if (list == null) {
-      list = new ArrayList<>();
-      parameters.put(name, list);
-    }
-
+    List<String> list = parameters.computeIfAbsent(name, k -> new ArrayList<>());
     list.add(value);
   }
 
@@ -1104,12 +1107,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
     throw new UnsupportedOperationException();
   }
 
-  public void setOverrideMethod(String method) {
-    overrideMethod = method;
+  protected String getBaseURL() {
+    return scheme.toLowerCase() + "://" + serverName + (serverPort != 80 ? ":" + serverPort : "");
   }
 
   /**
@@ -1152,13 +1155,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
    *
    * @return True if the parameters are still good, false if there is an input stream to be used.
    */
-  private boolean hasParameters() {
+  private boolean doesNotHaveParameters() {
     if (method == Method.POST && contentType != null && contentType.equals("application/x-www-form-urlencoded")) {
       inputStream = new MockServletInputStream(new byte[0]);
-      return true;
+      return false;
     }
 
-    return files.isEmpty();
+    return !files.isEmpty();
+  }
+
+  private void updateCommonHeaders() {
+    headers.remove("Origin");
+    headers.computeIfAbsent("Origin", key -> new ArrayList<>()).add(getBaseURL());
+    headers.remove("Referer");
+    headers.computeIfAbsent("Referer", key -> new ArrayList<>()).add(getBaseURL() + "/referral-path");
   }
 
   public enum Method {

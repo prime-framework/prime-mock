@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2019, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package org.primeframework.mock.servlet;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,19 +66,20 @@ public class MockHttpServletResponse implements HttpServletResponse {
     cookies.add(cookie);
   }
 
-  public void addDateHeader(String name, long date) {
-    headers.putIfAbsent(name, new ArrayList<>());
-    headers.get(name).add(Long.toString(date));
+  public void addDateHeader(String name, long value) {
+    addHeader(name, Long.toString(value));
   }
 
   public void addHeader(String name, String value) {
+    if (name != null && name.equalsIgnoreCase("Set-Cookie")) {
+      addCookie(name + ": " + value);
+    }
     headers.putIfAbsent(name, new ArrayList<>());
     headers.get(name).add(value);
   }
 
   public void addIntHeader(String name, int value) {
-    headers.putIfAbsent(name, new ArrayList<>());
-    headers.get(name).add(Integer.toString(value));
+    addHeader(name, Integer.toString(value));
   }
 
   public boolean containsHeader(String name) {
@@ -101,7 +102,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     throw new UnsupportedOperationException("Not used in this MVC");
   }
 
-  public void flushBuffer() throws IOException {
+  public void flushBuffer() {
     this.flushed = true;
   }
 
@@ -210,7 +211,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.message = message;
   }
 
-  public ServletOutputStream getOutputStream() throws IOException {
+  public ServletOutputStream getOutputStream() {
     return stream;
   }
 
@@ -247,7 +248,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.stream = stream;
   }
 
-  public PrintWriter getWriter() throws IOException {
+  public PrintWriter getWriter() {
     return new PrintWriter(stream);
   }
 
@@ -283,16 +284,16 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.reset = true;
   }
 
-  public void sendError(int code, String message) throws IOException {
+  public void sendError(int code, String message) {
     this.code = code;
     this.message = message;
   }
 
-  public void sendError(int code) throws IOException {
+  public void sendError(int code) {
     this.code = code;
   }
 
-  public void sendRedirect(String url) throws IOException {
+  public void sendRedirect(String url) {
     this.redirect = url;
     this.code = HttpServletResponse.SC_FOUND;
   }
@@ -306,23 +307,40 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.length = len;
   }
 
-  public void setDateHeader(String name, long date) {
-    headers.putIfAbsent(name, new ArrayList<>());
-    headers.get(name).add(Long.toString(date));
+  public void setDateHeader(String name, long value) {
+    setHeader(name, Long.toString(value));
   }
 
   public void setHeader(String name, String value) {
-    headers.putIfAbsent(name, new ArrayList<>());
+    if (name != null && name.equalsIgnoreCase("Set-Cookie")) {
+      addCookie(name + ": " + value);
+    }
+    headers.put(name, new ArrayList<>());
     headers.get(name).add(value);
   }
 
   public void setIntHeader(String name, int value) {
-    headers.putIfAbsent(name, new ArrayList<>());
-    headers.get(name).add(Integer.toString(value));
+    setHeader(name, Integer.toString(value));
   }
 
   public void setStatus(int code, String message) {
     this.code = code;
     this.message = message;
+  }
+
+  private void addCookie(String headerValue) {
+    for (HttpCookie c : HttpCookie.parse(headerValue)) {
+      Cookie cookie = new Cookie(c.getName(), c.getValue());
+      cookie.setComment(c.getComment());
+      if (c.getDomain() != null) {
+        cookie.setDomain(c.getDomain());
+      }
+      cookie.setHttpOnly(c.isHttpOnly());
+      cookie.setMaxAge((int) c.getMaxAge());
+      cookie.setPath(c.getPath());
+      cookie.setSecure(c.getSecure());
+      cookie.setVersion(c.getVersion());
+      addCookie(cookie);
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2017, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2019, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import javax.servlet.FilterRegistration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.SessionCookieConfig;
@@ -125,17 +124,17 @@ public class MockServletContext implements ServletContext {
   }
 
   @Override
-  public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+  public <T extends Filter> T createFilter(Class<T> clazz) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+  public <T extends EventListener> T createListener(Class<T> clazz) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+  public <T extends Servlet> T createServlet(Class<T> clazz) {
     throw new UnsupportedOperationException();
   }
 
@@ -319,7 +318,7 @@ public class MockServletContext implements ServletContext {
     return null;
   }
 
-  public Servlet getServlet(String s) throws ServletException {
+  public Servlet getServlet(String s) {
     return null;
   }
 

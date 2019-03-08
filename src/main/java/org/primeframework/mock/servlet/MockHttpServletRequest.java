@@ -892,7 +892,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   @Override
   public ServletContext getServletContext() {
-    throw new UnsupportedOperationException();
+    return new MockServletContext();
   }
 
   /**

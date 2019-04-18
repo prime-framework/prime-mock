@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2007, Inversoft Inc., All Rights Reserved
+ * Copyright (c) 2001-2019, Inversoft Inc., All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.primeframework.mock.servlet;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -40,8 +39,8 @@ public class MockServletOutputStream extends ServletOutputStream {
     throw new UnsupportedOperationException();
   }
 
-  public void write(int b) throws IOException {
-    baos.write(b);
+  public byte[] toByteArray() {
+    return baos.toByteArray();
   }
 
   public String toString() {
@@ -50,5 +49,9 @@ public class MockServletOutputStream extends ServletOutputStream {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void write(int b) {
+    baos.write(b);
   }
 }

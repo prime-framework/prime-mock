@@ -1179,6 +1179,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     OPTIONS,
     DELETE,
     TRACE,
-    CONNECT
+    CONNECT,
+    PATCH
   }
 }

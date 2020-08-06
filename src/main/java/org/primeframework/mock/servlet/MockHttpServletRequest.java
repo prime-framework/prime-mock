@@ -156,15 +156,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
-   * Adds a cookie.
-   *
-   * @param cookie The cookie.
-   */
-  public void addCookie(Cookie cookie) {
-    this.cookies.add(cookie);
-  }
-
-  /**
    * Adds a file to the HTTP request body. This must be called if the content type is not set and the InputStream hasn't
    * been set or retrieved.
    *
@@ -347,14 +338,14 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return Any cookies setup.
    */
   public Cookie[] getCookies() {
-    return cookies.toArray(new Cookie[0]);
+    return container.getUserAgent().getCookies(this).toArray(new Cookie[]{});
   }
 
   /**
    * @return The list of cookies.
    */
   public List<Cookie> getCookiesList() {
-    return cookies;
+    return container.getUserAgent().getCookies(this);
   }
 
   /**
@@ -505,11 +496,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return locales;
   }
 
-
-  //-------------------------------------------------------------------------
-  //  javax.servlet.http.HttpServletRequest methods
-  //-------------------------------------------------------------------------
-
   /**
    * @return GET or POST, depending on the constructor or post flag setup.
    */
@@ -520,6 +506,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     return overrideMethod;
   }
+
+
+  //-------------------------------------------------------------------------
+  //  javax.servlet.http.HttpServletRequest methods
+  //-------------------------------------------------------------------------
 
   /**
    * Sets the method of the request.
@@ -837,10 +828,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return scheme;
   }
 
-  //-------------------------------------------------------------------------
-  //                            Helper methods
-  //-------------------------------------------------------------------------
-
   /**
    * Sets the scheme, which defaults to HTTP.
    *
@@ -851,9 +838,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     updateCommonHeaders();
   }
 
-
   //-------------------------------------------------------------------------
-  //                          Modification Methods
+  //                            Helper methods
   //-------------------------------------------------------------------------
 
   /**
@@ -862,6 +848,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public String getServerName() {
     return serverName;
   }
+
+
+  //-------------------------------------------------------------------------
+  //                          Modification Methods
+  //-------------------------------------------------------------------------
 
   /**
    * Sets the server name, which defaults to localhost.
@@ -1001,6 +992,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   public void logout() {
     throw new UnsupportedOperationException();
+  }
+
+  public void readCookiesFromUserAgent() {
+    cookies.clear();
+    cookies.addAll(container.getUserAgent().getCookies(this));
   }
 
   /**

@@ -31,6 +31,8 @@ import java.util.Set;
  * @author Daniel DeGroff
  */
 public class MockContainer {
+  private final MockUserAgent userAgent;
+
   private MockServletContext context;
 
   private MockHttpServletRequest request;
@@ -44,7 +46,8 @@ public class MockContainer {
   public MockContainer() {
     this.context = new MockServletContext();
     request = new MockHttpServletRequest("", this);
-    response = new MockHttpServletResponse();
+    response = new MockHttpServletResponse(this);
+    userAgent = new MockUserAgent();
   }
 
   /**
@@ -97,6 +100,10 @@ public class MockContainer {
     return getSession(true);
   }
 
+  public MockUserAgent getUserAgent() {
+    return userAgent;
+  }
+
   public MockServletContext newServletContext(File webDir) {
     context = new MockServletContext(webDir);
     return context;
@@ -124,7 +131,7 @@ public class MockContainer {
   }
 
   public MockHttpServletResponse newServletResponse() {
-    response = new MockHttpServletResponse();
+    response = new MockHttpServletResponse(this);
     return response;
   }
 
@@ -141,7 +148,7 @@ public class MockContainer {
   }
 
   public void resetResponse() {
-    response = new MockHttpServletResponse();
+    response = new MockHttpServletResponse(this);
   }
 
   /**
@@ -150,6 +157,10 @@ public class MockContainer {
    */
   public void resetSession() {
     session = null;
+  }
+
+  public void resetUserAgent() {
+    userAgent.reset();
   }
 
   public MockContainer restoreContextToSavePoint(String... keys) {

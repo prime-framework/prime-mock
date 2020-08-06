@@ -33,10 +33,13 @@ import java.util.Map;
  *
  * @author Brian Pontarelli
  */
+@SuppressWarnings("unused")
 public class MockHttpServletResponse implements HttpServletResponse {
   protected int code;
 
   protected boolean committed;
+
+  protected MockContainer container;
 
   protected String contentType;
 
@@ -62,8 +65,15 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   protected MockServletOutputStream stream = new MockServletOutputStream();
 
+  public MockHttpServletResponse(MockContainer container) {
+    this.container = container;
+  }
+
+  // Adding a cookie will keep it here so we know it was written to the response, and it will also write it to to the user agent.
+  // - We could optionally have a finalize method that is called when the simulator completes a request and then write cookies to the user agent.
   public void addCookie(Cookie cookie) {
     cookies.add(cookie);
+    container.getUserAgent().addCookie(container.getRequest(), cookie);
   }
 
   public void addDateHeader(String name, long value) {
@@ -138,12 +148,9 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.contentType = contentType;
   }
 
+  // Only return the cookies written to the response, do not include those in the user agent.
   public List<Cookie> getCookies() {
     return cookies;
-  }
-
-  public void setCookies(List<Cookie> cookies) {
-    this.cookies = cookies;
   }
 
   public String getEncoding() {
@@ -315,6 +322,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     if (name != null && name.equalsIgnoreCase("Set-Cookie")) {
       addCookie(name + ": " + value);
     }
+
     headers.put(name, new ArrayList<>());
     headers.get(name).add(value);
   }

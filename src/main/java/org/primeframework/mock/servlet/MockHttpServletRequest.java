@@ -243,6 +243,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     parameters.clear();
   }
 
+  public void copyCookiesFromUserAgent() {
+    cookies.clear();
+    cookies.addAll(container.getUserAgent().getCookies(this));
+  }
+
   @Override
   public AsyncContext getAsyncContext() {
     throw new UnsupportedOperationException();
@@ -496,6 +501,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return locales;
   }
 
+
+  //-------------------------------------------------------------------------
+  //  javax.servlet.http.HttpServletRequest methods
+  //-------------------------------------------------------------------------
+
   /**
    * @return GET or POST, depending on the constructor or post flag setup.
    */
@@ -506,11 +516,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     return overrideMethod;
   }
-
-
-  //-------------------------------------------------------------------------
-  //  javax.servlet.http.HttpServletRequest methods
-  //-------------------------------------------------------------------------
 
   /**
    * Sets the method of the request.
@@ -828,6 +833,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return scheme;
   }
 
+  //-------------------------------------------------------------------------
+  //                            Helper methods
+  //-------------------------------------------------------------------------
+
   /**
    * Sets the scheme, which defaults to HTTP.
    *
@@ -838,8 +847,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
     updateCommonHeaders();
   }
 
+
   //-------------------------------------------------------------------------
-  //                            Helper methods
+  //                          Modification Methods
   //-------------------------------------------------------------------------
 
   /**
@@ -848,11 +858,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public String getServerName() {
     return serverName;
   }
-
-
-  //-------------------------------------------------------------------------
-  //                          Modification Methods
-  //-------------------------------------------------------------------------
 
   /**
    * Sets the server name, which defaults to localhost.
@@ -992,11 +997,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   public void logout() {
     throw new UnsupportedOperationException();
-  }
-
-  public void readCookiesFromUserAgent() {
-    cookies.clear();
-    cookies.addAll(container.getUserAgent().getCookies(this));
   }
 
   /**

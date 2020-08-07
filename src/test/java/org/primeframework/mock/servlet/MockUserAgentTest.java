@@ -17,7 +17,6 @@
 package org.primeframework.mock.servlet;
 
 import javax.servlet.http.Cookie;
-import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -42,10 +41,17 @@ public class MockUserAgentTest {
     // One cookie
     container.getResponse().addCookie(new Cookie("token", "secret"));
 
-    List<Cookie> actual = userAgent.getCookies(firstRequest);
-    assertEquals(actual.size(), 1);
-    assertEquals(actual.get(0).getName(), "token");
-    assertEquals(actual.get(0).getValue(), "secret");
+    // Response is not yet committed, 0 cookies in the user agent.
+    assertEquals(userAgent.getCookies(firstRequest).size(), 0);
+
+    // Commit response, cookie is written to the user agent.
+    container.getResponse().flushBuffer();
+    assertEquals(userAgent.getCookies(firstRequest).size(), 1);
+
+    // Cookie name and value.
+    Cookie actual = userAgent.getCookies(firstRequest).get(0);
+    assertEquals(actual.getName(), "token");
+    assertEquals(actual.getValue(), "secret");
 
     // Add a second cookie for a different domain
     container.resetResponse();
@@ -56,16 +62,21 @@ public class MockUserAgentTest {
     container.getResponse().addCookie(new Cookie("JSESSIONID", "12345"));
 
     // Should only get the single cookie for my original request
-    actual = userAgent.getCookies(firstRequest);
-    assertEquals(actual.size(), 1);
-    assertEquals(actual.get(0).getName(), "token");
-    assertEquals(actual.get(0).getValue(), "secret");
+    assertEquals(userAgent.getCookies(firstRequest).size(), 1);
+    actual = userAgent.getCookies(firstRequest).get(0);
+    assertEquals(actual.getName(), "token");
+    assertEquals(actual.getValue(), "secret");
 
+    // Ask for cookies from the second request. None, response has not been committed.
+    assertEquals(userAgent.getCookies(secondRequest).size(), 0);
+
+    // Commit response, now ask the user agent again.
     // Should only get the second cookie for my second request
-    actual = userAgent.getCookies(secondRequest);
-    assertEquals(actual.size(), 1);
-    assertEquals(actual.get(0).getName(), "JSESSIONID");
-    assertEquals(actual.get(0).getValue(), "12345");
+    container.getResponse().flushBuffer();
+    assertEquals(userAgent.getCookies(secondRequest).size(), 1);
+    actual = userAgent.getCookies(secondRequest).get(0);
+    assertEquals(actual.getName(), "JSESSIONID");
+    assertEquals(actual.getValue(), "12345");
 
     // Reset response, third request is to fusionauth.io/login
     container.resetResponse();
@@ -79,17 +90,26 @@ public class MockUserAgentTest {
     container.getResponse().addCookie(cookie);
 
     // Expect JSESSIONID but not preferences when path is /login
-    actual = userAgent.getCookies(thirdRequest);
-    assertEquals(actual.size(), 1);
-    assertEquals(actual.get(0).getName(), "JSESSIONID");
-    assertEquals(actual.get(0).getValue(), "12345");
+    // - Expect 1 , the preferences are not visible on this request.
+    assertEquals(userAgent.getCookies(thirdRequest).size(), 1);
+
+    // Flush, still only one.
+    container.getResponse().flushBuffer();
+    assertEquals(userAgent.getCookies(thirdRequest).size(), 1);
+
+    actual = userAgent.getCookies(thirdRequest).get(0);
+    assertEquals(actual.getName(), "JSESSIONID");
+    assertEquals(actual.getValue(), "12345");
 
     // Re-execute the second request, expect two tokens when path is /admin
-    actual = userAgent.getCookies(secondRequest);
-    assertEquals(actual.size(), 2);
-    assertEquals(actual.get(0).getName(), "JSESSIONID");
-    assertEquals(actual.get(0).getValue(), "12345");
-    assertEquals(actual.get(1).getName(), "preferences");
-    assertEquals(actual.get(1).getValue(), "42");
+    assertEquals(userAgent.getCookies(secondRequest).size(), 2);
+
+    actual = userAgent.getCookies(secondRequest).get(0);
+    assertEquals(actual.getName(), "JSESSIONID");
+    assertEquals(actual.getValue(), "12345");
+
+    actual = userAgent.getCookies(secondRequest).get(1);
+    assertEquals(actual.getName(), "preferences");
+    assertEquals(actual.getValue(), "42");
   }
 }

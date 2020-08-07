@@ -69,11 +69,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.container = container;
   }
 
-  // Adding a cookie will keep it here so we know it was written to the response, and it will also write it to to the user agent.
-  // - We could optionally have a finalize method that is called when the simulator completes a request and then write cookies to the user agent.
   public void addCookie(Cookie cookie) {
     cookies.add(cookie);
-    container.getUserAgent().addCookie(container.getRequest(), cookie);
   }
 
   public void addDateHeader(String name, long value) {
@@ -84,6 +81,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     if (name != null && name.equalsIgnoreCase("Set-Cookie")) {
       addCookie(name + ": " + value);
     }
+
     headers.putIfAbsent(name, new ArrayList<>());
     headers.get(name).add(value);
   }
@@ -113,6 +111,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   public void flushBuffer() {
+    // "Commit" response cookies to the user agent.
+    cookies.forEach(cookie -> container.getUserAgent().addCookie(container.getRequest(), cookie));
     this.flushed = true;
   }
 

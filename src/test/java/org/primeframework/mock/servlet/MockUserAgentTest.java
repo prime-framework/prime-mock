@@ -40,12 +40,6 @@ public class MockUserAgentTest {
 
     // One cookie
     container.getResponse().addCookie(new Cookie("token", "secret"));
-
-    // Response is not yet committed, 0 cookies in the user agent.
-    assertEquals(userAgent.getCookies(firstRequest).size(), 0);
-
-    // Commit response, cookie is written to the user agent.
-    container.getResponse().flushBuffer();
     assertEquals(userAgent.getCookies(firstRequest).size(), 1);
 
     // Cookie name and value.
@@ -67,12 +61,6 @@ public class MockUserAgentTest {
     assertEquals(actual.getName(), "token");
     assertEquals(actual.getValue(), "secret");
 
-    // Ask for cookies from the second request. None, response has not been committed.
-    assertEquals(userAgent.getCookies(secondRequest).size(), 0);
-
-    // Commit response, now ask the user agent again.
-    // Should only get the second cookie for my second request
-    container.getResponse().flushBuffer();
     assertEquals(userAgent.getCookies(secondRequest).size(), 1);
     actual = userAgent.getCookies(secondRequest).get(0);
     assertEquals(actual.getName(), "JSESSIONID");
@@ -91,10 +79,6 @@ public class MockUserAgentTest {
 
     // Expect JSESSIONID but not preferences when path is /login
     // - Expect 1 , the preferences are not visible on this request.
-    assertEquals(userAgent.getCookies(thirdRequest).size(), 1);
-
-    // Flush, still only one.
-    container.getResponse().flushBuffer();
     assertEquals(userAgent.getCookies(thirdRequest).size(), 1);
 
     actual = userAgent.getCookies(thirdRequest).get(0);

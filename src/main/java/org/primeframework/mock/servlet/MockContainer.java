@@ -62,6 +62,7 @@ public class MockContainer {
     return this;
   }
 
+
   public MockServletContext getContext() {
     return context;
   }
@@ -118,6 +119,7 @@ public class MockContainer {
   public MockHttpServletRequest newServletRequest() {
     request = new MockHttpServletRequest(this);
     return request;
+
   }
 
   public MockHttpServletRequest newServletRequest(String uri) {
@@ -168,4 +170,5 @@ public class MockContainer {
     context.attributes.keySet().removeIf(key -> !keep.contains(key) && !savedContextKeys.contains(key));
     return this;
   }
+
 }

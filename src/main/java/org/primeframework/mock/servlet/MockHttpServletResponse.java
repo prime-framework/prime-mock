@@ -71,6 +71,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   public void addCookie(Cookie cookie) {
     cookies.add(cookie);
+    container.getUserAgent().addCookie(container.getRequest(), cookie);
   }
 
   public void addDateHeader(String name, long value) {
@@ -111,8 +112,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   public void flushBuffer() {
-    // "Commit" response cookies to the user agent.
-    cookies.forEach(cookie -> container.getUserAgent().addCookie(container.getRequest(), cookie));
     this.flushed = true;
   }
 

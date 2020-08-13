@@ -343,7 +343,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return Any cookies setup.
    */
   public Cookie[] getCookies() {
-    return container.getUserAgent().getCookies(this).toArray(new Cookie[]{});
+    List<Cookie> cookies = container.getUserAgent().getCookies(this);
+    // Return null when no cookies are present to be spec compliant. This ensures we will hit a NPE in tests just like we would at runtime.
+    if (cookies.isEmpty()) {
+      return null;
+    }
+
+    return cookies.toArray(new Cookie[]{});
   }
 
   /**

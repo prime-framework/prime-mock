@@ -31,6 +31,8 @@ import java.util.Set;
  * @author Daniel DeGroff
  */
 public class MockContainer {
+  private final MockUserAgent userAgent;
+
   private MockServletContext context;
 
   private MockHttpServletRequest request;
@@ -44,7 +46,8 @@ public class MockContainer {
   public MockContainer() {
     this.context = new MockServletContext();
     request = new MockHttpServletRequest("", this);
-    response = new MockHttpServletResponse();
+    response = new MockHttpServletResponse(this);
+    userAgent = new MockUserAgent();
   }
 
   /**
@@ -58,6 +61,7 @@ public class MockContainer {
     savedContextKeys = new HashSet<>(context.attributes.keySet());
     return this;
   }
+
 
   public MockServletContext getContext() {
     return context;
@@ -97,6 +101,10 @@ public class MockContainer {
     return getSession(true);
   }
 
+  public MockUserAgent getUserAgent() {
+    return userAgent;
+  }
+
   public MockServletContext newServletContext(File webDir) {
     context = new MockServletContext(webDir);
     return context;
@@ -111,6 +119,7 @@ public class MockContainer {
   public MockHttpServletRequest newServletRequest() {
     request = new MockHttpServletRequest(this);
     return request;
+
   }
 
   public MockHttpServletRequest newServletRequest(String uri) {
@@ -124,7 +133,7 @@ public class MockContainer {
   }
 
   public MockHttpServletResponse newServletResponse() {
-    response = new MockHttpServletResponse();
+    response = new MockHttpServletResponse(this);
     return response;
   }
 
@@ -141,7 +150,7 @@ public class MockContainer {
   }
 
   public void resetResponse() {
-    response = new MockHttpServletResponse();
+    response = new MockHttpServletResponse(this);
   }
 
   /**
@@ -152,9 +161,14 @@ public class MockContainer {
     session = null;
   }
 
+  public void resetUserAgent() {
+    userAgent.reset();
+  }
+
   public MockContainer restoreContextToSavePoint(String... keys) {
     Set<String> keep = new HashSet<>(Arrays.asList(keys));
     context.attributes.keySet().removeIf(key -> !keep.contains(key) && !savedContextKeys.contains(key));
     return this;
   }
+
 }

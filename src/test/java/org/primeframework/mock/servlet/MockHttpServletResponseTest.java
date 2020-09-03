@@ -27,8 +27,8 @@ import static org.testng.Assert.assertEquals;
 public class MockHttpServletResponseTest {
 
   @Test
-  public void redirect() throws Exception {
-    MockHttpServletResponse response = new MockHttpServletResponse();
+  public void redirect() {
+    MockHttpServletResponse response = new MockHttpServletResponse(new MockContainer());
     response.sendRedirect("/login");
 
     assertEquals(response.getStatus(), HttpServletResponse.SC_FOUND);

@@ -156,15 +156,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /**
-   * Adds a cookie.
-   *
-   * @param cookie The cookie.
-   */
-  public void addCookie(Cookie cookie) {
-    this.cookies.add(cookie);
-  }
-
-  /**
    * Adds a file to the HTTP request body. This must be called if the content type is not set and the InputStream hasn't
    * been set or retrieved.
    *
@@ -250,6 +241,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void clearParameters() {
     parameters.clear();
+  }
+
+  public void copyCookiesFromUserAgent() {
+    cookies.clear();
+    cookies.addAll(container.getUserAgent().getCookies(this));
   }
 
   @Override
@@ -347,14 +343,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return Any cookies setup.
    */
   public Cookie[] getCookies() {
-    return cookies.toArray(new Cookie[0]);
+    List<Cookie> cookies = container.getUserAgent().getCookies(this);
+    // Return null when no cookies are present to be spec compliant. This ensures we will hit a NPE in tests just like we would at runtime.
+    if (cookies.isEmpty()) {
+      return null;
+    }
+
+    return cookies.toArray(new Cookie[]{});
   }
 
   /**
    * @return The list of cookies.
    */
   public List<Cookie> getCookiesList() {
-    return cookies;
+    return container.getUserAgent().getCookies(this);
   }
 
   /**

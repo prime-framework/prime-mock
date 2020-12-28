@@ -20,17 +20,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
  * @author Daniel DeGroff
  */
 public class MockUserAgent {
-  // Cookies keyed by host and path
-  public Map<String, List<Cookie>> cookies = new HashMap<>();
+  // Cookies keyed by host and path.
+  // Note: We may run some tests multi-threaded, use a concurrent map to protect from ConcurrentModificationException.
+  public Map<String, List<Cookie>> cookies = new ConcurrentHashMap<>();
 
   public void addCookie(MockHttpServletRequest request, Cookie cookie) {
     URI uri = URI.create(request.getBaseURL());
@@ -74,7 +76,8 @@ public class MockUserAgent {
       domain = host;
     }
 
-    List<Cookie> existing = cookies.computeIfAbsent(domain, k -> new ArrayList<>());
+    // Allow for multi-threaded access in tests.
+    List<Cookie> existing = cookies.computeIfAbsent(domain, k ->  Collections.synchronizedList(new ArrayList<>()));
     existing.removeIf(c -> c.getName().equals(cookie.getName()));
     // A Max-Age of 0 is a delete.
     if (cookie.getMaxAge() != 0) {

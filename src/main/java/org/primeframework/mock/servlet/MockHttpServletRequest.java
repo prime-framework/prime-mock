@@ -65,7 +65,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   protected final Map<String, FileInfo> files = new LinkedHashMap<>();
 
-  protected final Map<String, List<String>> headers = new LinkedHashMap<>();
+  // Support multi-threading requests in a test.
+  protected final Map<String, List<String>> headers = Collections.synchronizedMap(new LinkedHashMap<>());
 
   protected final Map<String, List<String>> parameters = new LinkedHashMap<>();
 

@@ -194,6 +194,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public void addHeader(String name, String value) {
     List<String> values = headers.computeIfAbsent(name, key -> new ArrayList<>());
+
+    // Special cases
+    if (name.equalsIgnoreCase("user-agent")) {
+      values.clear();
+    }
+
     values.add(value);
   }
 

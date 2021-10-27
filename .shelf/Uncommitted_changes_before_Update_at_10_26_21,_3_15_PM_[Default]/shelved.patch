@@ -1,0 +1,31 @@
+Index: build.savant
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (c) 2014-2019, Inversoft Inc., All Rights Reserved\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *   http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing,\n * software distributed under the License is distributed on an\n * \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,\n * either express or implied. See the License for the specific\n * language governing permissions and limitations under the License.\n */\nsavantVersion = \"1.0.0\"\n\nproject(group: \"org.primeframework\", name: \"prime-mock\", version: \"0.8.0\", licenses: [\"ApacheV2_0\"]) {\n  workflow {\n    standard()\n  }\n\n  publishWorkflow {\n    subversion(repository: \"http://svn.inversoft.org/savant\")\n  }\n\n  dependencies {\n    group(name: \"provided\") {\n      dependency(id: \"javax.servlet:servlet-api:3.1.0\", skipCompatibilityCheck: true)\n    }\n    group(name: \"compile\") {\n      dependency(id: \"org.slf4j:slf4j-api:1.7.7\")\n    }\n    group(name: \"test-compile\", export: false) {\n      dependency(id: \"org.apache.commons:commons-fileupload:1.4.0\")\n      dependency(id: \"org.apache.commons:commons-io:2.7.0\")\n      dependency(id: \"org.testng:testng:7.1.0\")\n    }\n  }\n\n  publications {\n    standard()\n  }\n}\n\n// Plugins\ndependency = loadPlugin(id: \"org.savantbuild.plugin:dependency:1.0.2\")\njava = loadPlugin(id: \"org.savantbuild.plugin:java:1.0.2\")\njavaTestNG = loadPlugin(id: \"org.savantbuild.plugin:java-testng:1.0.5\")\nidea = loadPlugin(id: \"org.savantbuild.plugin:idea:1.0.1\")\nrelease = loadPlugin(id: \"org.savantbuild.plugin:release-git:${savantVersion}\")\n\n// Plugin settings\njava.settings.javaVersion = \"14\"\njava.settings.compilerArguments = \"--enable-preview -source 14\"\njavaTestNG.settings.javaVersion = \"14\"\njavaTestNG.settings.jvmArguments = \"--enable-preview\"\n\ntarget(name: \"clean\", description: \"Cleans the project\") {\n  java.clean()\n}\n\ntarget(name: \"compile\", description: \"Compiles the project\") {\n  java.compile()\n}\n\ntarget(name: \"jar\", description: \"JARs the project\", dependsOn: [\"compile\"]) {\n  java.jar()\n}\n\ntarget(name: \"test\", description: \"Runs the project's tests\", dependsOn: [\"jar\"]) {\n  javaTestNG.test()\n}\n\ntarget(name: \"doc\", description: \"Generate the project's JavaDoc\", dependsOn: [\"jar\"]) {\n  java.document()\n}\n\ntarget(name: \"int\", description: \"Releases a local integration build of the project\", dependsOn: [\"test\"]) {\n  dependency.integrate()\n}\n\ntarget(name: \"list-unused-dependencies\", description: \"Lists the unused dependencies of the project\", dependsOn: [\"compile\"]) {\n  dependency.listUnusedDependencies()\n}\n\ntarget(name: \"release\", description: \"Releases a full version of the project\", dependsOn: [\"test\"]) {\n  release.release()\n}\n\ntarget(name: \"idea\", description: \"Updates the IntelliJ IDEA module file\") {\n  idea.iml()\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.savant b/build.savant
+--- a/build.savant	(revision 87872ff23f19bb8d6b6fdfeea80ec2fe585d1f98)
++++ b/build.savant	(date 1635278464446)
+@@ -15,7 +15,7 @@
+  */
+ savantVersion = "1.0.0"
+ 
+-project(group: "org.primeframework", name: "prime-mock", version: "0.8.0", licenses: ["ApacheV2_0"]) {
++project(group: "org.primeframework", name: "prime-mock", version: "0.8.1", licenses: ["ApacheV2_0"]) {
+   workflow {
+     standard()
+   }
+@@ -52,9 +52,9 @@
+ 
+ // Plugin settings
+ java.settings.javaVersion = "14"
+-java.settings.compilerArguments = "--enable-preview -source 14"
++//java.settings.compilerArguments = "--enable-preview -source 14"
+ javaTestNG.settings.javaVersion = "14"
+-javaTestNG.settings.jvmArguments = "--enable-preview"
++//javaTestNG.settings.jvmArguments = "--enable-preview"
+ 
+ target(name: "clean", description: "Cleans the project") {
+   java.clean()

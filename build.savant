@@ -13,7 +13,9 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
+
 savantVersion = "1.0.0"
+slf4jVersion = "2.0.0-alpha5"
 
 project(group: "org.primeframework", name: "prime-mock", version: "0.8.1", licenses: ["ApacheV2_0"]) {
   workflow {
@@ -29,7 +31,7 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.8.1", licen
       dependency(id: "javax.servlet:servlet-api:3.1.0", skipCompatibilityCheck: true)
     }
     group(name: "compile") {
-      dependency(id: "org.slf4j:slf4j-api:1.7.7")
+      dependency(id: "org.slf4j:slf4j-api:${slf4jVersion}")
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.apache.commons:commons-fileupload:1.4.0")

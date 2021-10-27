@@ -36,7 +36,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -155,8 +154,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     // User agent
     if (headers.keySet().stream().noneMatch(name -> name.equalsIgnoreCase("User-Agent"))) {
-      //noinspection ArraysAsListWithZeroOrOneArgument
-      headers.put("User-Agent", Arrays.asList("Prime-Mock"));
+      // The value we add to the headers map must be mutable.
+      List<String> values = new ArrayList<>();
+      values.add("Prime-Mock");
+      headers.put("User-Agent", values);
     }
   }
 

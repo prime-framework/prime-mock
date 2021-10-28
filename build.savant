@@ -48,13 +48,13 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.9.0", licen
 // Plugins
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.5")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.9")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:1.0.1")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
 
 // Plugin settings
-java.settings.javaVersion = "17"
-javaTestNG.settings.javaVersion = "17"
+java.settings.javaVersion = "14"
+javaTestNG.settings.javaVersion = "14"
 
 target(name: "clean", description: "Cleans the project") {
   java.clean()

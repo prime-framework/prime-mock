@@ -36,7 +36,7 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.9.0", licen
     group(name: "test-compile", export: false) {
       dependency(id: "org.apache.commons:commons-fileupload:1.4.0")
       dependency(id: "org.apache.commons:commons-io:2.7.0")
-      dependency(id: "org.testng:testng:7.1.0")
+      dependency(id: "org.testng:testng:7.3.0")
     }
   }
 
@@ -53,8 +53,8 @@ idea = loadPlugin(id: "org.savantbuild.plugin:idea:1.0.1")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
 
 // Plugin settings
-java.settings.javaVersion = "14"
-javaTestNG.settings.javaVersion = "14"
+java.settings.javaVersion = "1.8"
+javaTestNG.settings.javaVersion = "1.8"
 
 target(name: "clean", description: "Cleans the project") {
   java.clean()

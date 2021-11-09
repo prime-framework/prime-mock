@@ -153,7 +153,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     // User agent
-    headers.computeIfAbsent("User-Agent", key -> new ArrayList<>()).add("Prime-Mock");
+    if (headers.keySet().stream().noneMatch(name -> name.equalsIgnoreCase("User-Agent"))) {
+      // The value we add to the headers map must be mutable.
+      List<String> values = new ArrayList<>();
+      values.add("Prime-Mock");
+      headers.put("User-Agent", values);
+    }
   }
 
   /**

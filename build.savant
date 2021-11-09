@@ -13,9 +13,11 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-savantVersion = "1.0.0"
 
-project(group: "org.primeframework", name: "prime-mock", version: "0.8.1", licenses: ["ApacheV2_0"]) {
+savantVersion = "1.0.0"
+slf4jVersion = "2.0.0-alpha5"
+
+project(group: "org.primeframework", name: "prime-mock", version: "0.9.0", licenses: ["ApacheV2_0"]) {
   workflow {
     standard()
   }
@@ -29,12 +31,12 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.8.1", licen
       dependency(id: "javax.servlet:servlet-api:3.1.0", skipCompatibilityCheck: true)
     }
     group(name: "compile") {
-      dependency(id: "org.slf4j:slf4j-api:1.7.7")
+      dependency(id: "org.slf4j:slf4j-api:${slf4jVersion}")
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.apache.commons:commons-fileupload:1.4.0")
       dependency(id: "org.apache.commons:commons-io:2.7.0")
-      dependency(id: "org.testng:testng:7.1.0")
+      dependency(id: "org.testng:testng:7.3.0")
     }
   }
 
@@ -46,15 +48,13 @@ project(group: "org.primeframework", name: "prime-mock", version: "0.8.1", licen
 // Plugins
 dependency = loadPlugin(id: "org.savantbuild.plugin:dependency:1.0.2")
 java = loadPlugin(id: "org.savantbuild.plugin:java:1.0.2")
-javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.5")
+javaTestNG = loadPlugin(id: "org.savantbuild.plugin:java-testng:1.0.9")
 idea = loadPlugin(id: "org.savantbuild.plugin:idea:1.0.1")
 release = loadPlugin(id: "org.savantbuild.plugin:release-git:${savantVersion}")
 
 // Plugin settings
-java.settings.javaVersion = "14"
-java.settings.compilerArguments = "--enable-preview -source 14"
-javaTestNG.settings.javaVersion = "14"
-javaTestNG.settings.jvmArguments = "--enable-preview"
+java.settings.javaVersion = "1.8"
+javaTestNG.settings.javaVersion = "1.8"
 
 target(name: "clean", description: "Cleans the project") {
   java.clean()

@@ -47,6 +47,19 @@ import static org.testng.Assert.assertTrue;
  */
 public class MockHttpServletRequestTest {
   @Test
+  public void addHeader() {
+    MockHttpServletRequest request = new MockContainer().newServletRequest("/foo");
+
+    // Add a single header
+    request.addHeader("User-Agent", "Netscape Navigator");
+    assertEquals(request.getHeader("User-Agent"), "Netscape Navigator");
+
+    // Add it twice, this is a special case, and only one is added.
+    request.addHeader("User-Agent", "Internet Explorer 3.0.1");
+    assertEquals(request.getHeader("User-Agent"), "Internet Explorer 3.0.1");
+  }
+
+  @Test
   public void getHeaders() {
     MockHttpServletRequest request = new MockContainer().newServletRequest("/foo");
 
